@@ -1,0 +1,7 @@
+.swade.roll-dialog .swade-sundries.reminders {
+    p {
+        word-wrap: break-word;
+        margin: 0.3rem 0;
+        line-height: 1.1;
+    }
+}

@@ -1,0 +1,6 @@
+{
+    "swade-sundries.settings.reminders.enabled.name": "Enable Roll Reminders",
+    "swade-sundries.settings.reminders.enabled.hint": "Show reminders in the roll dialog.",
+    "swade-sundries.settings.reminders.maxlen.name": "Reminder text length",
+    "swade-sundries.settings.reminders.maxlen.hint": "The maximum number of characters before reminder text is cut off on the roll dialog."
+}

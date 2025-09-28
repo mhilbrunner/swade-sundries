@@ -1,0 +1,46 @@
+{
+  "id": "swade-sundries",
+  "title": "SWADE Sundries",
+  "description": "Little bits and bobs for SWADE.",
+  "compatibility": {
+    "minimum": 13,
+    "verified": 13
+  },
+  "authors": [
+    {
+      "name": "mhilbrunner",
+      "url": "https://github.com/mhilbrunner"
+    }
+  ],
+  "relationships": {
+    "systems": [
+      {
+        "id": "swade",
+        "type": "system",
+        "compatibility": {}
+      }
+    ]
+  },
+  "esmodules": [
+    "scripts/swade-sundries.js"
+  ],
+  "styles": [
+    "styles/swade-sundries.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "languages/en.json"
+    },
+    {
+      "lang": "de",
+      "name": "German",
+      "path": "languages/de.json"
+    }
+  ],
+  "url": "#{URL}#",
+  "version": "#{VERSION}#",
+  "manifest": "#{MANIFEST}#",
+  "download": "#{DOWNLOAD}#"
+}
