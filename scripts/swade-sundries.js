@@ -1,4 +1,4 @@
-class SWADESundries {
+class SWADESundriesUtil {
     static stringToHTML(str) {
         const parser = new DOMParser();
         const doc = parser.parseFromString(str, 'text/html');
@@ -10,11 +10,7 @@ class SWADESundries {
     }
 }
 
-class SWADESundriesAPI {
-    static MOD_ID = 'swade-sundries';
-    static MOD_REMINDER_KEY_PREFIX = `flags.${SWADESundriesAPI.MOD_ID}.r.`;
-    LOG = true;
-
+class SWADESundriesReminders {
     isDamageItem(item) {
         if (item?.system?.damage?.length) return true;
         if (item?.system?.actions?.additional) {
@@ -41,7 +37,7 @@ class SWADESundriesAPI {
 
     isUnarmed(item) {
         if (!item) return false;
-        return SWADESundriesAPI.api.isItemNameMatch(item, 'Unarmed') || item?.system?.swid.startsWith('natural');
+        return SWADESundries.api.reminders.isItemNameMatch(item, 'Unarmed') || item?.system?.swid.startsWith('natural');
     }
 
     isArcaneSkill(actor, item) {
@@ -67,13 +63,13 @@ class SWADESundriesAPI {
 
         if (type === 'damage') {
             for (const i of actor.items) {
-                if (!SWADESundriesAPI.api.isDamageItem(i)) continue;
-                if (SWADESundriesAPI.api.isItemNameMatch(i, nameOrSWID)) return i;
+                if (!SWADESundries.api.reminders.isDamageItem(i)) continue;
+                if (SWADESundries.api.reminders.isItemNameMatch(i, nameOrSWID)) return i;
             }
         } else if (type === 'skill') {
             for (const i of actor.items) {
                 if (i.type !== 'skill') continue;
-                if (SWADESundriesAPI.api.isItemNameMatch(i, nameOrSWID)) return i;
+                if (SWADESundries.api.reminders.isItemNameMatch(i, nameOrSWID)) return i;
             }
         }
 
@@ -86,14 +82,14 @@ class SWADESundriesAPI {
         let suffix = ' ' + game.i18n.localize('SWADE.SkillTest');
         if (ret.title?.endsWith(suffix)) {
             ret.type = 'skill';
-            ret.name = SWADESundries.trimSuffix(ret.title, suffix);
+            ret.name = SWADESundriesUtil.trimSuffix(ret.title, suffix);
             return ret;
         }
 
         suffix = ' ' + game.i18n.localize('SWADE.AttributeTest');
         if (ret.title?.endsWith(suffix)) {
             ret.type = 'attribute';
-            ret.name = SWADESundries.trimSuffix(ret.title, suffix);
+            ret.name = SWADESundriesUtil.trimSuffix(ret.title, suffix);
             return ret;
         }
 
@@ -172,7 +168,7 @@ class SWADESundriesAPI {
             ret.name = die.flavor;
         }
 
-        console.log(SWADESundriesAPI.MOD_ID, 'Unhandled trait roll for reminders:', roll.rollType);
+        console.log(SWADESundries.MOD_ID, 'Unhandled trait roll for reminders:', roll.rollType);
         return ret;
     }
 
@@ -193,23 +189,23 @@ class SWADESundriesAPI {
             ret.type = 'damage';
             const suffix = ' ' + game.i18n.localize('SWADE.Dmg');
             if (title.endsWith(suffix)) {
-                ret.name = SWADESundries.trimSuffix(title, suffix);
+                ret.name = SWADESundriesUtil.trimSuffix(title, suffix);
             }
         } else if (roll.rollType === 'trait') {
-            ret = SWADESundriesAPI.api.parseTraitRoll(ret);
+            ret = SWADESundries.api.reminders.parseTraitRoll(ret);
         } else if (roll.rollType === 'running') {
             ret.type = 'running';
         } else  {
-            console.log(SWADESundriesAPI.MOD_ID, 'Unhandled roll type for reminders:', roll.rollType);
+            console.log(SWADESundries.MOD_ID, 'Unhandled roll type for reminders:', roll.rollType);
         }
 
         if (!ret.item) {
-            ret.item = SWADESundriesAPI.api.findFirstMatchingItem(ret.actor, ret.name, ret.type);
+            ret.item = SWADESundries.api.reminders.findFirstMatchingItem(ret.actor, ret.name, ret.type);
         }
 
         if (ret.type === 'skill') {
             if (ret.item?.type === 'skill') ret.skillItem = ret.item;
-            if (!ret.skillItem) ret.skillItem = SWADESundriesAPI.api.findFirstMatchingItem(ret.actor, ret.name, 'skill');
+            if (!ret.skillItem) ret.skillItem = SWADESundries.api.reminders.findFirstMatchingItem(ret.actor, ret.name, 'skill');
         }
 
         return ret;
@@ -228,7 +224,7 @@ class SWADESundriesAPI {
         if (reminder.key === 'save.stunned' && rollInfo.againstStunned) return true;
         if (reminder.key === 'save.bleedingout' && rollInfo.againstBleedingOut) return true;
         if (reminder.key === 'save.soak' && rollInfo.soak) return true;
-        if (reminder.key.startsWith('item.') && SWADESundriesAPI.api.isItemNameMatch(rollInfo.item, lastPart)) return true;
+        if (reminder.key.startsWith('item.') && SWADESundries.api.reminders.isItemNameMatch(rollInfo.item, lastPart)) return true;
 
         // Attributes
         if (reminder.key === 'attribute' && rollInfo.type === 'attribute') return true;
@@ -245,10 +241,10 @@ class SWADESundriesAPI {
 
         // Skills
         if (reminder.key === 'skillall' && rollInfo.type === 'skill') return true;
-        if (reminder.key === 'skillattack' && rollInfo.type === 'skill' && SWADESundriesAPI.api.isAttackSkill(rollInfo.skillItem?.system?.swid)) return true;
-        if (reminder.key === 'skillranged' && rollInfo.type === 'skill' && SWADESundriesAPI.api.isRangedSkill(rollInfo.skillItem?.system?.swid)) return true;
-        if (reminder.key === 'skillunarmed' && rollInfo.type === 'skill' && SWADESundriesAPI.api.isUnarmed(rollInfo.item) && SWADESundriesAPI.api.isAttackSkill(rollInfo.skillItem?.system?.swid)) return true;
-        if (reminder.key === 'skillarcane' && rollInfo.type === 'skill' && SWADESundriesAPI.api.isArcaneSkill(rollInfo.actor, rollInfo.skillItem)) return true;
+        if (reminder.key === 'skillattack' && rollInfo.type === 'skill' && SWADESundries.api.reminders.isAttackSkill(rollInfo.skillItem?.system?.swid)) return true;
+        if (reminder.key === 'skillranged' && rollInfo.type === 'skill' && SWADESundries.api.reminders.isRangedSkill(rollInfo.skillItem?.system?.swid)) return true;
+        if (reminder.key === 'skillunarmed' && rollInfo.type === 'skill' && SWADESundries.api.reminders.isUnarmed(rollInfo.item) && SWADESundries.api.reminders.isAttackSkill(rollInfo.skillItem?.system?.swid)) return true;
+        if (reminder.key === 'skillarcane' && rollInfo.type === 'skill' && SWADESundries.api.reminders.isArcaneSkill(rollInfo.actor, rollInfo.skillItem)) return true;
         if (reminder.key === 'skillagi' && rollInfo.type === 'skill' && rollInfo.item?.system?.attribute === 'agility') return true;
         if (reminder.key === 'skillsma' && rollInfo.type === 'skill' && rollInfo.item?.system?.attribute === 'smarts') return true;
         if (reminder.key === 'skillspr' && rollInfo.type === 'skill' && rollInfo.item?.system?.attribute === 'spirit') return true;
@@ -259,7 +255,7 @@ class SWADESundriesAPI {
             (rollInfo.skillItem?.system?.attribute === 'agility' || rollInfo.skillItem?.system?.attribute === 'strength' || rollInfo.skillItem?.system?.attribute === 'vigor')) return true;
         if (reminder.key === 'skillm' && rollInfo.type === 'skill' &&
             (rollInfo.skillItem?.system?.attribute === 'smarts' || rollInfo.skillItem?.system?.attribute === 'spirit')) return true;
-        if (reminder.key.startsWith('skill.') && rollInfo.type === 'skill' && SWADESundriesAPI.api.isItemNameMatch(rollInfo.skillItem, lastPart)) return true;
+        if (reminder.key.startsWith('skill.') && rollInfo.type === 'skill' && SWADESundries.api.reminders.isItemNameMatch(rollInfo.skillItem, lastPart)) return true;
 
         // Damage
         if (reminder.key === 'damageall' && rollInfo.type === 'damage') return true;
@@ -267,8 +263,8 @@ class SWADESundriesAPI {
         if (reminder.key === 'damagemelee' && rollInfo.type === 'damage' && rollInfo.item?.type === 'weapon' && rollInfo.item?.system?.rangeType === 0) return true;
         if (reminder.key === 'damageranged' && rollInfo.type === 'damage' && rollInfo.item?.type === 'weapon' && rollInfo.item?.system?.rangeType !== 0) return true;
         if (reminder.key === 'damagepower' && rollInfo.type === 'damage' && rollInfo.item?.type === 'power') return true;
-        if (reminder.key === 'damageunarmed' && rollInfo.type === 'damage' && SWADESundriesAPI.api.isUnarmed(rollInfo.item)) return true;
-        if (reminder.key.startsWith('damage.') && rollInfo.type === 'damage' && SWADESundriesAPI.api.isItemNameMatch(rollInfo.item, lastPart)) return true;
+        if (reminder.key === 'damageunarmed' && rollInfo.type === 'damage' && SWADESundries.api.reminders.isUnarmed(rollInfo.item)) return true;
+        if (reminder.key.startsWith('damage.') && rollInfo.type === 'damage' && SWADESundries.api.reminders.isItemNameMatch(rollInfo.item, lastPart)) return true;
 
         return false;
     }
@@ -285,8 +281,8 @@ class SWADESundriesAPI {
                 if (typeof c.value !== 'string' && !(c.value instanceof String)) continue;
                 if (!c.value || !c.value.length) continue;
                 if (c.mode !== 2) continue; // For now, only ADD supported.
-                if (!c.key.startsWith(SWADESundriesAPI.MOD_REMINDER_KEY_PREFIX)) continue;
-                const k = c.key.slice(SWADESundriesAPI.MOD_REMINDER_KEY_PREFIX.length);
+                if (!c.key.startsWith(SWADESundries.MOD_REMINDER_KEY_PREFIX)) continue;
+                const k = c.key.slice(SWADESundries.MOD_REMINDER_KEY_PREFIX.length);
                 const dedupKey = k + c.value.trim().toLowerCase();
                 if (dedup.hasOwnProperty(dedupKey)) {
                     // TODO: Maybe look up the existing reminder here and also note this additional source?
@@ -306,23 +302,23 @@ class SWADESundriesAPI {
     }
 
     async handleRollReminders(app, html, context, options) {
-        if (!game.settings.get(SWADESundriesAPI.MOD_ID, 'reminders.enabled')) return;
+        if (!game.settings.get(SWADESundries.MOD_ID, 'reminders.enabled')) return;
 
         let item = app?.ctx?.item;
         let actor = app?.ctx?.actor;
         if (!actor) actor = item?.actor;
         if (!actor) return;
-        const reminders = SWADESundriesAPI.api.getReminders(actor);
+        const reminders = SWADESundries.api.reminders.getReminders(actor);
         if (!reminders?.length) return;
         const roll = app?.ctx?.roll;
         if (!roll) return;
         const title = app?.ctx?.title;
 
-        const rollInfo = SWADESundriesAPI.api.parseRollInfo(actor, item, roll, title);
+        const rollInfo = SWADESundries.api.reminders.parseRollInfo(actor, item, roll, title);
         let reminderContent = '';
         let reminderContentFull = '';
         for (const reminder of reminders) {
-            if (SWADESundriesAPI.api.checkReminderApplies(reminder, rollInfo)) {
+            if (SWADESundries.api.reminders.checkReminderApplies(reminder, rollInfo)) {
                 if (reminderContent.length) reminderContent += ' ';
                 reminderContent += reminder.text;
                 let sources = '';
@@ -337,7 +333,7 @@ class SWADESundriesAPI {
         }
 
         const TextEditor = foundry.applications.ux.TextEditor.implementation;
-        const maxLen = game.settings.get(SWADESundriesAPI.MOD_ID, 'reminders.maxlen');
+        const maxLen = SWADESundries.getSetting('reminders.maxlen');
         if (maxLen <= 0) reminderContent = '';
         if (maxLen > 0) reminderContent = TextEditor.truncateText(reminderContent, { maxLength: maxLen, splitWords: false, suffix: '…'});
 
@@ -348,46 +344,63 @@ class SWADESundriesAPI {
         reminderContentFull = await TextEditor.enrichHTML(reminderContentFull);
         if (reminderContentFull) reminderContentFull = foundry.utils.escapeHTML(reminderContentFull);
         let template = `
-            <div class='${SWADESundriesAPI.MOD_ID} reminders'
+            <div class='${SWADESundries.MOD_ID} reminders'
                data-tooltip='${reminderContentFull}' data-tooltip-direction='UP'>
                <p>${reminderContent}</p>
             </div>
         `;
 
-        insertAfter.after(SWADESundries.stringToHTML(template));
+        insertAfter.after(SWADESundriesUtil.stringToHTML(template));
     }
 
     register() {
-        game.settings.register(SWADESundriesAPI.MOD_ID, 'reminders.enabled', {
-            name: `${SWADESundriesAPI.MOD_ID}.settings.reminders.enabled.name`,
-            hint: `${SWADESundriesAPI.MOD_ID}.settings.reminders.enabled.hint`,
+        game.settings.register(SWADESundries.MOD_ID, 'reminders.enabled', {
+            name: `${SWADESundries.MOD_ID}.settings.reminders.enabled.name`,
+            hint: `${SWADESundries.MOD_ID}.settings.reminders.enabled.hint`,
             config: true,
             default: true,
             scope: 'world',
             type: Boolean,
         });
 
-        game.settings.register(SWADESundriesAPI.MOD_ID, 'reminders.maxlen', {
-            name: `${SWADESundriesAPI.MOD_ID}.settings.reminders.maxlen.name`,
-            hint: `${SWADESundriesAPI.MOD_ID}.settings.reminders.maxlen.hint`,
+        game.settings.register(SWADESundries.MOD_ID, 'reminders.maxlen', {
+            name: `${SWADESundries.MOD_ID}.settings.reminders.maxlen.name`,
+            hint: `${SWADESundries.MOD_ID}.settings.reminders.maxlen.hint`,
             config: true,
             default: 133,
             scope: 'client',
             type: Number,
         });
 
-        Hooks.on(`renderRollDialog`, this.handleRollReminders);
+        Hooks.on(`renderRollDialog`, SWADESundries.api.reminders.handleRollReminders);
+    }
+}
+
+class SWADESundries {
+    static MOD_ID = 'swade-sundries';
+    static MOD_REMINDER_KEY_PREFIX = `flags.${SWADESundries.MOD_ID}.r.`;
+
+    constructor() {
+        this.reminders = new SWADESundriesReminders();
     }
 
     static get api() {
-        const mod = game.modules.get(SWADESundriesAPI.MOD_ID);
+        const mod = game.modules.get(SWADESundries.MOD_ID);
         if (!mod.api) {
-            mod.api = new SWADESundriesAPI();
+            mod.api = new SWADESundries();
         }
         return mod.api;
+    }
+
+    static getSetting(key) {
+        return game.settings.get(SWADESundries.MOD_ID, key);
+    }
+
+    register() {
+        SWADESundries.api.reminders?.register();
     }
 }
 
 Hooks.once('init', async function () {
-    SWADESundriesAPI.api.register();
+    SWADESundries.api.register();
 });
