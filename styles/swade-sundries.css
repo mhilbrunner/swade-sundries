@@ -6,6 +6,12 @@
     }
 }
 
+.swade-official .tab.inventory .swade-sundries.inventory-menu {
+    margin-left: 2px;
+    max-width: fit-content;
+    line-height: var(--form-field-height);
+}
+
 .swade-official .tab.inventory .inventory .swade-sundries {
     &.section {
         grid-template-columns: 32px 3fr 1fr 3fr 1fr 80px;

@@ -426,13 +426,111 @@ class SWADESundriesInventory {
         return SWADESundries.getSetting('invsec.enabled') && SWADESundries.getSetting('invsec.enabledclient');
     }
 
+    getSortItemUpdates(items) {
+        if (!items?.length || items.length < 2) return [];
+
+        const STEP_SIZE = 100000;
+        const collator = new Intl.Collator(game.settings.get("core", "language"), { numeric: true, sensitivity: "base" });
+
+        let updates = items.sort((a, b) => {
+            return collator.compare(a.name, b.name);
+        }).flatMap(function (item, i) {
+            const newSort = STEP_SIZE + i * STEP_SIZE;
+            if (item.sort === newSort) {
+                return [];
+            }
+            return [{ _id: item.id, sort: newSort }];
+        });
+        return updates;
+    }
+
+    async sortInventory(actorId) {
+        if (!actorId?.length) return;
+        const actor = game.actors.get(actorId);
+        if (!actor || !actor.isOwner) return;
+
+        const TYPES_TO_SORT = ['weapon', 'armor', 'shield', 'gear', 'consumable'];
+        const sections = {};
+        let updates = [];
+        for (let [itemType, items] of Object.entries(actor.itemTypes)) {
+            if (!TYPES_TO_SORT.includes(itemType)) continue;
+
+            if (!SWADESundries.api.inventory.sectionsEnabled()) {
+                updates = updates.concat(SWADESundries.api.inventory.getSortItemUpdates(items));
+                continue;
+            }
+
+            // With sections enabled, we need to sort items with sections inside their own sections.
+            let noSection = [];
+            for (const item of items) {
+                const section = SWADESundries.api.inventory.getSection(item);
+                if (section?.length) {
+                    if (sections.hasOwnProperty(section)) {
+                        sections[section].push(item);
+                    } else {
+                        sections[section] = [item];
+                    }
+                } else {
+                    noSection.push(item);
+                }
+            }
+
+            updates = updates.concat(SWADESundries.api.inventory.getSortItemUpdates(noSection));
+        }
+
+        if (SWADESundries.api.inventory.sectionsEnabled()) {
+            for (const [section, items] of Object.entries(sections)) {
+                console.log('sorting', section, items);
+                updates = updates.concat(SWADESundries.api.inventory.getSortItemUpdates(items));
+            }
+        }
+
+        if (!updates.length) {
+            return;
+        }
+        return actor.updateEmbeddedDocuments("Item", updates);
+    }
+
+    addInventoryMenu(app, html) {
+        if (!html) return;
+        const actor = app?.object;
+        if (!actor) return;
+
+        if (!SWADESundries.getSetting('invsort.enabled')) {
+            return;
+        }
+
+        const topRow = html.querySelector('.sheet-body .tab.inventory > section.flexrow');
+        if (!topRow) return;
+        const buttons = document.createElement('div');
+        buttons.className = `${SWADESundries.MOD_ID} inventory-menu`;
+
+        const menu = topRow.insertAdjacentElement('beforeend', buttons);
+        if (!menu) return;
+
+        if (SWADESundries.getSetting('invsort.enabled')) {
+            const sort = document.createElement('button');
+            sort.classList = 'sort';
+            sort.innerHTML = `<i class="fas fa-sort-alpha-down" ></i>`;
+            sort.dataset['tooltip'] = `${SWADESundries.MOD_ID}.inventory.sort.tooltip`;
+            sort.disabled = !actor.isOwner;
+            sort.addEventListener('click', (event) => {
+                SWADESundries.api.inventory.sortInventory(actor.id);
+            });
+            menu.appendChild(sort);
+        }
+    }
+
     renderCharacterSheet(app, html, context, options) {
         html = html instanceof jQuery ? html[0] : html;
         const actor = app?.object;
         if (!actor) return;
+
+        SWADESundries.api.inventory.addInventoryMenu(app, html);
         
         const inventory = html?.querySelector('.sheet-body .tab.inventory .inventory');
         if (!inventory) return;
+
         const items = inventory.querySelectorAll('& > ul > li');
         if (!items?.length) return;
 
@@ -475,7 +573,7 @@ class SWADESundriesInventory {
             list.className = `${SWADESundries.MOD_ID} section-items`;
             const insertedList = headerMisc.insertAdjacentElement('beforebegin', list);
             if (!insertedList) return;
-            for (const row of items) {
+            for (const row of items.sort((a, b) => a.item?.sort - b.item?.sort)) {
                 const e = SWADESundries.api.inventory.formatForSection(row.element);
                 if (!e) continue;
                 insertedList.appendChild(e);
@@ -506,6 +604,15 @@ class SWADESundriesInventory {
     }
 
     register() {
+        game.settings.register(SWADESundries.MOD_ID, 'invsort.enabled', {
+            name: `${SWADESundries.MOD_ID}.settings.invsort.enabled.name`,
+            hint: `${SWADESundries.MOD_ID}.settings.invsort.enabled.hint`,
+            config: true,
+            default: true,
+            scope: 'world',
+            type: Boolean,
+        });
+
         game.settings.register(SWADESundries.MOD_ID, 'invsec.enabled', {
             name: `${SWADESundries.MOD_ID}.settings.invsec.enabled.name`,
             hint: `${SWADESundries.MOD_ID}.settings.invsec.enabled.hint`,

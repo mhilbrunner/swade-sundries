@@ -15,6 +15,10 @@ Each feature can be disabled as needed.
 Items can be assigned a custom section. If set on an item, it gets displayed under that section in the gear tab.
 Inspired by the 5E [Custom Character Sheet Sections](https://foundryvtt.com/packages/custom-character-sheet-sections) module.
 
+### Inventory sort
+
+Adds a button to the top of the gear tab to sort the inventory alphabetically.
+
 ## Roll Reminders
 
 Reminders allow Active Effects to add custom text to the roll dialog depending on roll type,
