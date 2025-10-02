@@ -2,5 +2,12 @@
     "swade-sundries.settings.reminders.enabled.name": "Enable Roll Reminders",
     "swade-sundries.settings.reminders.enabled.hint": "Show reminders in the roll dialog.",
     "swade-sundries.settings.reminders.maxlen.name": "Reminder text length",
-    "swade-sundries.settings.reminders.maxlen.hint": "The maximum number of characters before reminder text is cut off on the roll dialog."
+    "swade-sundries.settings.reminders.maxlen.hint": "The maximum number of characters before reminder text is cut off on the roll dialog.",
+    "swade-sundries.settings.invsec.enabled.name": "Custom inventory sections",
+    "swade-sundries.settings.invsec.enabled.hint": "If enabled, items can be assigned custom sections for player inventories.",
+    "swade-sundries.settings.invsec.enabledclient.name": "Custom inventory sections (client)",
+    "swade-sundries.settings.invsec.enabledclient.hint": "If enabled, items can be assigned custom inventory sections on this client.",
+    "swade-sundries.inventory.section.label": "Section",
+    "swade-sundries.inventory.section.placeholder": "Inventory section",
+    "swade-sundries.inventory.section.tooltip": "Custom section in the inventory"
 }

@@ -5,3 +5,51 @@
         line-height: 1.1;
     }
 }
+
+.swade-official .tab.inventory .inventory .swade-sundries {
+    &.section {
+        grid-template-columns: 32px 3fr 1fr 3fr 1fr 80px;
+        .header-name {
+            grid-column: 1 / span 2;
+        }
+    }
+    &.section-items .item {
+        summary {
+            grid-template-columns: 32px 3fr 1fr 3fr 1fr 80px;
+        }
+
+        .armor .bonus,
+        .weapon .damage,
+        .weapon .ap,
+        .weapon .min-str,
+        .shield .parry,
+        .shield .cover {
+            grid-column: unset;
+            display: none;
+        }
+    }
+    &.section,
+    &.section-items .item {
+        .charges {
+            grid-column: 3;
+            text-align: center
+        }
+
+        .note {
+            grid-column: 4;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: center;
+        }
+
+        .weight {
+            grid-column: 5;
+            text-align: center;
+        }
+
+        .item-controls {
+            grid-column: 6;
+        }
+    }
+}

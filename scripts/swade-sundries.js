@@ -8,6 +8,12 @@ class SWADESundriesUtil {
     static trimSuffix(str, suffix) {
         return str.endsWith(suffix) ? str.slice(0, -suffix.length) : str
     }
+
+    static sortedKeys(objWithStrKeys) {
+        if (!objWithStrKeys) return objWithStrKeys;
+        const collator = new Intl.Collator(game.settings.get("core", "language"), { numeric: true, sensitivity: "base" });
+        return Object.keys(objWithStrKeys)?.sort(collator.compare);
+    }
 }
 
 class SWADESundriesReminders {
@@ -281,8 +287,8 @@ class SWADESundriesReminders {
                 if (typeof c.value !== 'string' && !(c.value instanceof String)) continue;
                 if (!c.value || !c.value.length) continue;
                 if (c.mode !== 2) continue; // For now, only ADD supported.
-                if (!c.key.startsWith(SWADESundries.MOD_REMINDER_KEY_PREFIX)) continue;
-                const k = c.key.slice(SWADESundries.MOD_REMINDER_KEY_PREFIX.length);
+                if (!c.key.startsWith(SWADESundries.MOD_KEY_REMINDER_PREFIX)) continue;
+                const k = c.key.slice(SWADESundries.MOD_KEY_REMINDER_PREFIX.length);
                 const dedupKey = k + c.value.trim().toLowerCase();
                 if (dedup.hasOwnProperty(dedupKey)) {
                     // TODO: Maybe look up the existing reminder here and also note this additional source?
@@ -376,12 +382,160 @@ class SWADESundriesReminders {
     }
 }
 
+class SWADESundriesInventory {
+    static KEY_INVSEC = 'invsec';
+    static INV_ITEM_TYPES = ['weapon', 'armor', 'shield', 'consumable', 'gear'];
+
+    getSection(item) {
+        return item?.getFlag(SWADESundries.MOD_ID, SWADESundriesInventory.KEY_INVSEC)?.trim();
+    }
+
+    formatForSection(itemElement) {
+        if (!itemElement) return itemElement;
+
+        const toRemove = itemElement.querySelectorAll('.bonus, .damage, .ap, .min-str, .parry, .cover');
+        toRemove?.forEach((e) => {
+            if (e.matches('summary > span')) e.remove();
+        });
+
+        const weight = itemElement.querySelector('.weight');
+        if (!weight) return itemElement;
+
+        const charges = itemElement.querySelector('.charges');
+        const note = itemElement.querySelector('.note');
+        if (!charges) {
+            const s = document.createElement('span');
+            s.classList = `charges`;
+            if (note) {
+                note.insertAdjacentElement('beforebegin', s);
+            } else {
+                weight.insertAdjacentElement('beforebegin', s);
+            }
+        }
+
+        if (!note) {
+            const s = document.createElement('span');
+            s.classList = `note`;
+            weight.insertAdjacentElement('beforebegin', s);
+        }
+
+        return itemElement;
+    }
+
+    sectionsEnabled() {
+        return SWADESundries.getSetting('invsec.enabled') && SWADESundries.getSetting('invsec.enabledclient');
+    }
+
+    renderCharacterSheet(app, html, context, options) {
+        html = html instanceof jQuery ? html[0] : html;
+        const actor = app?.object;
+        if (!actor) return;
+        
+        const inventory = html?.querySelector('.sheet-body .tab.inventory .inventory');
+        if (!inventory) return;
+        const items = inventory.querySelectorAll('& > ul > li');
+        if (!items?.length) return;
+
+        let sections = {};
+        items.forEach((itemEl) => {
+            const id = itemEl?.dataset?.itemId;
+            if (!id?.length) return;
+            const item = actor.items?.get(id);
+            if (!item) return;
+
+            if (!SWADESundries.api.inventory.sectionsEnabled()) return;
+
+            const section = SWADESundries.api.inventory.getSection(item);
+
+            if (section?.length) {
+                if (sections.hasOwnProperty(section)) {
+                    sections[section].push({item: item, element: itemEl});
+                } else {
+                    sections[section] = [{ item: item, element: itemEl }];
+                }
+                itemEl.remove();
+            }
+        });
+
+        const headerMisc = inventory.querySelector('.header.misc')
+        if (!headerMisc) return;
+        for (const section of SWADESundriesUtil.sortedKeys(sections)) {
+            const items = sections[section];
+            const header = document.createElement('header');
+            header.className = `header ${SWADESundries.MOD_ID} section`;
+            header.innerHTML = `
+                <span class="header-name">${foundry.utils.escapeHTML(section)}</span>
+                <span class="charges">${game.i18n.localize('SWADE.Charges')}</span>
+                <span class="note">${game.i18n.localize('SWADE.Notes')}</span>
+                <span class="weight">${game.i18n.localize('SWADE.Weight')}</span>
+            `;
+            const insertedHeader = headerMisc.insertAdjacentElement('beforebegin', header);
+            if (!insertedHeader) return;
+            const list = document.createElement('ul');
+            list.className = `${SWADESundries.MOD_ID} section-items`;
+            const insertedList = headerMisc.insertAdjacentElement('beforebegin', list);
+            if (!insertedList) return;
+            for (const row of items) {
+                const e = SWADESundries.api.inventory.formatForSection(row.element);
+                if (!e) continue;
+                insertedList.appendChild(e);
+            }
+        }
+    }
+
+    renderItemSheet(app, html, context, options) {
+        if (!SWADESundries.api.inventory.sectionsEnabled()) return;
+
+        html = html instanceof jQuery ? html[0] : html;
+        const item = app?.object;
+        if (!item || !SWADESundriesInventory.INV_ITEM_TYPES.includes(item.type)) return;
+        let target = html?.querySelector('.sheet-sidebar .additional-stats')?.previousElementSibling;
+        if (!target) return;
+
+        const section = SWADESundries.api.inventory.getSection(item);
+        const sectionInputName = `flags.${SWADESundries.MOD_ID}.${SWADESundriesInventory.KEY_INVSEC}`;
+
+        const sectionInput = foundry.applications.fields.createTextInput({
+            name: sectionInputName, value: section, placeholder: game.i18n.localize(`${SWADESundries.MOD_ID}.inventory.section.placeholder`),
+            dataset: { tooltip: `${SWADESundries.MOD_ID}.inventory.section.tooltip`}});
+        const sectionGroup = foundry.applications.fields.createFormGroup({
+            input: sectionInput, label: `${SWADESundries.MOD_ID}.inventory.section.label`, localize: true,
+            classes: [SWADESundries.MOD_ID, 'section'],
+        });
+        target.insertAdjacentElement('beforebegin', sectionGroup);
+    }
+
+    register() {
+        game.settings.register(SWADESundries.MOD_ID, 'invsec.enabled', {
+            name: `${SWADESundries.MOD_ID}.settings.invsec.enabled.name`,
+            hint: `${SWADESundries.MOD_ID}.settings.invsec.enabled.hint`,
+            config: true,
+            default: true,
+            scope: 'world',
+            type: Boolean,
+        });
+
+        game.settings.register(SWADESundries.MOD_ID, 'invsec.enabledclient', {
+            name: `${SWADESundries.MOD_ID}.settings.invsec.enabledclient.name`,
+            hint: `${SWADESundries.MOD_ID}.settings.invsec.enabledclient.hint`,
+            config: true,
+            default: true,
+            scope: 'client',
+            type: Boolean,
+        });
+
+        Hooks.on(`renderCharacterSheet`, SWADESundries.api.inventory.renderCharacterSheet);
+        Hooks.on(`renderItemSheet`, SWADESundries.api.inventory.renderItemSheet);
+    }
+}
+
 class SWADESundries {
     static MOD_ID = 'swade-sundries';
-    static MOD_REMINDER_KEY_PREFIX = `flags.${SWADESundries.MOD_ID}.r.`;
+    static MOD_KEY_REMINDER_PREFIX = `flags.${SWADESundries.MOD_ID}.r.`;
 
     constructor() {
         this.reminders = new SWADESundriesReminders();
+        this.inventory = new SWADESundriesInventory();
     }
 
     static get api() {
@@ -398,6 +552,7 @@ class SWADESundries {
 
     register() {
         SWADESundries.api.reminders?.register();
+        SWADESundries.api.inventory?.register();
     }
 }
 

@@ -5,7 +5,15 @@
 
 # SWADE Sundries
 
-Small box of FoundryVTT [SWADE](https://foundryvtt.com/packages/swade/) system bits and bobs. For now this only has the roll reminders feature.
+Small box of FoundryVTT [SWADE](https://foundryvtt.com/packages/swade/) system bits and bobs.
+Each feature can be disabled as needed.
+
+## Gear tab inventory improvements
+
+### Custom item sections
+
+Items can be assigned a custom section. If set on an item, it gets displayed under that section in the gear tab.
+Inspired by the 5E [Custom Character Sheet Sections](https://foundryvtt.com/packages/custom-character-sheet-sections) module.
 
 ## Roll Reminders
 
