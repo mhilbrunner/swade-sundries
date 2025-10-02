@@ -615,15 +615,33 @@ class SWADESundriesInventory {
         const items = inventory.querySelectorAll('& > ul > li');
         if (!items?.length) return;
 
+        let invhide = SWADESundries.getSetting('invhide.items')?.replace(';', ',')?.split(',');
+        invhide = invhide && invhide.length ? invhide : [];
+        const hide = SWADESundries.getSetting('invhide.enabled') && invhide.length;
+
+        if (!SWADESundries.api.inventory.sectionsEnabled() && !hide) {
+            return;
+        }
+
         let sections = {};
+        let hideClass = `${SWADESundries.MOD_ID}-player-hidden${game.user.isGM ? '-gm' : ''}`;
         items.forEach((itemEl) => {
             const id = itemEl?.dataset?.itemId;
             if (!id?.length) return;
             const item = actor.items?.get(id);
             if (!item) return;
 
-            if (!SWADESundries.api.inventory.sectionsEnabled()) return;
+            if (hide) {
+                invhide.forEach((h) => {
+                    h = h?.trim();
+                    if (!h?.length) return;
+                    if (!SWADESundries.api.reminders.isItemNameMatch(item, h)) return;
 
+                    itemEl.classList.add(hideClass);
+                });
+            }
+
+            if (!SWADESundries.api.inventory.sectionsEnabled()) return;
             const section = SWADESundries.api.inventory.getSection(item);
 
             if (section?.length) {
@@ -719,6 +737,24 @@ class SWADESundriesInventory {
             default: true,
             scope: 'client',
             type: Boolean,
+        });
+
+        game.settings.register(SWADESundries.MOD_ID, 'invhide.enabled', {
+            name: `${SWADESundries.MOD_ID}.settings.invhide.enabled.name`,
+            hint: `${SWADESundries.MOD_ID}.settings.invhide.enabled.hint`,
+            config: true,
+            default: true,
+            scope: 'world',
+            type: Boolean,
+        });
+
+        game.settings.register(SWADESundries.MOD_ID, 'invhide.items', {
+            name: `${SWADESundries.MOD_ID}.settings.invhide.items.name`,
+            hint: `${SWADESundries.MOD_ID}.settings.invhide.items.hint`,
+            config: true,
+            default: '',
+            scope: 'world',
+            type: String,
         });
 
         Hooks.on(`renderCharacterSheet`, SWADESundries.api.inventory.renderCharacterSheet);

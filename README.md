@@ -23,6 +23,10 @@ Adds a button to the top of the gear tab to sort the inventory alphabetically.
 
 Adds a search filter field to the top of the gear tab.
 
+### Hide items
+
+A list of items to hide can be set in module settings. Items with matching SWIDs will be hidden from the inventory tab for players.
+
 ## Roll Reminders
 
 Reminders allow Active Effects to add custom text to the roll dialog depending on roll type,

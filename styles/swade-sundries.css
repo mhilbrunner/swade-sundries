@@ -22,6 +22,17 @@
         display: none;
     }
 }
+.swade-official .tab.inventory .item.swade-sundries-player-hidden {
+    display: none;
+}
+.swade-official .tab.inventory .item.swade-sundries-player-hidden-gm {
+    opacity: 70%;
+
+    .item-name {
+        text-decoration: underline;
+        text-decoration-style: dashed;
+    }
+}
 
 .swade-official .tab.inventory .inventory .swade-sundries {
     &.section {
