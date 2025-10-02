@@ -17,7 +17,6 @@
     "swade-sundries.settings.invhide.items.hint": "Kommaseparierte Liste von SWIDs von Items, die versteckt werden sollen wenn obige Einstellung aktiv ist.",
     "swade-sundries.inventory.sort.tooltip": "Inventar alphabetisch sortieren",
     "swade-sundries.inventory.filter.placeholder": "Suche",
-    "swade-sundries.inventory.filter.tooltip": "Text zum Suchen eingeben, ESC zum leeren",
     "swade-sundries.inventory.section.label": "Sektion",
     "swade-sundries.inventory.section.placeholder": "Inventarsektion",
     "swade-sundries.inventory.section.tooltip": "Eigene Sektion zur Anzeige im Inventar festlegen"

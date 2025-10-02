@@ -566,7 +566,6 @@ class SWADESundriesInventory {
             const searchFilter = foundry.applications.fields.createTextInput({
                 name: `${SWADESundries.MOD_ID}-filter`, value: ``,
                 placeholder: game.i18n.localize(`${SWADESundries.MOD_ID}.inventory.filter.placeholder`),
-                dataset: { tooltip: `${SWADESundries.MOD_ID}.inventory.filter.tooltip` },
                 classes: 'search',
             });
             SWADESundriesUtil.preventSubmit(searchFilter);

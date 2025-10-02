@@ -92,6 +92,6 @@ If you want to install a specific release, browse the available versions for lin
 
 This module is licensed under the terms of the MIT license, see [LICENSE](LICENSE).
 
-This module is unnoficial and not endorsed by Pinnacle. Savage Worlds and all associated logos and trademarks are copyrights of [Pinnacle Entertainment Group](https://peginc.com).
+This module is unofficial and not endorsed by Pinnacle. Savage Worlds and all associated logos and trademarks are copyrights of [Pinnacle Entertainment Group](https://peginc.com).
 
 Regarding Foundry, this is a work under the Limited License Agreement for Package Development, as outlined [here](https://foundryvtt.com/article/license/).
