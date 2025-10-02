@@ -14,6 +14,20 @@ class SWADESundriesUtil {
         const collator = new Intl.Collator(game.settings.get("core", "language"), { numeric: true, sensitivity: "base" });
         return Object.keys(objWithStrKeys)?.sort(collator.compare);
     }
+
+    static preventSubmit(element) {
+        if (!element) return;
+        const p = function (event) {
+            if (event?.keyCode === 13) {
+                event?.preventDefault();
+                event?.stopPropagation();
+                return false;
+            }
+        }
+        element.addEventListener('keypress', p);
+        element.addEventListener('keydown', p);
+        element.addEventListener('keyup', p);
+    }
 }
 
 class SWADESundriesReminders {
@@ -480,7 +494,6 @@ class SWADESundriesInventory {
 
         if (SWADESundries.api.inventory.sectionsEnabled()) {
             for (const [section, items] of Object.entries(sections)) {
-                console.log('sorting', section, items);
                 updates = updates.concat(SWADESundries.api.inventory.getSortItemUpdates(items));
             }
         }
@@ -491,12 +504,53 @@ class SWADESundriesInventory {
         return actor.updateEmbeddedDocuments("Item", updates);
     }
 
+    searchFilterCallback(event, app, html) {
+        if (!html) return;
+        const actor = app?.object;
+        if (!actor) return;
+
+        const query = event?.target?.value?.trim()?.toLowerCase();
+        const filter = query?.length && query?.length > 0;
+        const filterClass = `${SWADESundries.MOD_ID}-filtered`;
+
+        const inventory = html.querySelector('.sheet-body .tab.inventory .inventory');
+        if (!inventory) return;
+        if (filter) {
+            inventory.classList.add(`${SWADESundries.MOD_ID}-filter-active`);
+        } else {
+            inventory.classList.remove(`${SWADESundries.MOD_ID}-filter-active`);
+        }
+
+        const items = inventory.querySelectorAll('& > ul > li');
+        if (!items?.length) return;
+
+        items.forEach((itemEl) => {
+            if (!filter) {
+                return itemEl.classList.remove(filterClass);
+            }
+
+            const id = itemEl?.dataset?.itemId;
+            if (!id?.length) return;
+            const item = actor.items?.get(id);
+            if (!item) return;
+
+            if (item.name?.toLowerCase().includes(query) ||
+                item.system?.swid?.includes(query) ||
+                item.system?.swid?.includes(game.swade.util.slugify(query))) {
+                return itemEl.classList.remove(filterClass);
+            }
+
+            return itemEl.classList.add(filterClass);
+        });
+    }
+
     addInventoryMenu(app, html) {
         if (!html) return;
         const actor = app?.object;
         if (!actor) return;
 
-        if (!SWADESundries.getSetting('invsort.enabled')) {
+        if (!SWADESundries.getSetting('invfilter.enabled') &&
+            !SWADESundries.getSetting('invsort.enabled')) {
             return;
         }
 
@@ -507,6 +561,33 @@ class SWADESundriesInventory {
 
         const menu = topRow.insertAdjacentElement('beforeend', buttons);
         if (!menu) return;
+
+        if (SWADESundries.getSetting('invfilter.enabled')) {
+            const searchFilter = foundry.applications.fields.createTextInput({
+                name: `${SWADESundries.MOD_ID}-filter`, value: ``,
+                placeholder: game.i18n.localize(`${SWADESundries.MOD_ID}.inventory.filter.placeholder`),
+                dataset: { tooltip: `${SWADESundries.MOD_ID}.inventory.filter.tooltip` },
+                classes: 'search',
+            });
+            SWADESundriesUtil.preventSubmit(searchFilter);
+            searchFilter.addEventListener('keydown', (event) => {
+                if (event?.keyCode === 27) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const el = event?.target;
+                    if (!el) return;
+                    el.value = '';
+                    el.blur();
+                    SWADESundries.api.inventory.searchFilterCallback(undefined, app, html);
+                }
+            });
+            searchFilter.addEventListener('input', (event) => {
+                event?.stopPropagation();
+                event?.preventDefault();
+                SWADESundries.api.inventory.searchFilterCallback(event, app, html);
+            });
+            menu.appendChild(searchFilter);
+        }
 
         if (SWADESundries.getSetting('invsort.enabled')) {
             const sort = document.createElement('button');
@@ -607,6 +688,15 @@ class SWADESundriesInventory {
         game.settings.register(SWADESundries.MOD_ID, 'invsort.enabled', {
             name: `${SWADESundries.MOD_ID}.settings.invsort.enabled.name`,
             hint: `${SWADESundries.MOD_ID}.settings.invsort.enabled.hint`,
+            config: true,
+            default: true,
+            scope: 'world',
+            type: Boolean,
+        });
+
+        game.settings.register(SWADESundries.MOD_ID, 'invfilter.enabled', {
+            name: `${SWADESundries.MOD_ID}.settings.invfilter.enabled.name`,
+            hint: `${SWADESundries.MOD_ID}.settings.invfilter.enabled.hint`,
             config: true,
             default: true,
             scope: 'world',

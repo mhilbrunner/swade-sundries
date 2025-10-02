@@ -19,6 +19,10 @@ Inspired by the 5E [Custom Character Sheet Sections](https://foundryvtt.com/pack
 
 Adds a button to the top of the gear tab to sort the inventory alphabetically.
 
+### Inventory search
+
+Adds a search filter field to the top of the gear tab.
+
 ## Roll Reminders
 
 Reminders allow Active Effects to add custom text to the roll dialog depending on roll type,
