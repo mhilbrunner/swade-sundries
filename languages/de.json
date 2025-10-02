@@ -1,2 +1,20 @@
 {
+    "swade-sundries.settings.reminders.enabled.name": "Würfel-Hinweise aktivieren",
+    "swade-sundries.settings.reminders.enabled.hint": "Zeigt Hinweise im Würfeldialog.",
+    "swade-sundries.settings.reminders.maxlen.name": "Hinweis-Textlänge",
+    "swade-sundries.settings.reminders.maxlen.hint": "Maximale Zeichenanzahl für das Hinweisfeld im Würfeldialog.",
+    "swade-sundries.settings.invsort.enabled.name": "Inventar-Sortierungsknopf",
+    "swade-sundries.settings.invsort.enabled.hint": "Fügt dem Inventar oben einen Sortieren-Button hinzu.",
+    "swade-sundries.settings.invfilter.enabled.name": "Inventar-Suchfilter",
+    "swade-sundries.settings.invfilter.enabled.hint": "Fügt dem Inventar oben ein Suchfeld hinzu.",
+    "swade-sundries.settings.invsec.enabled.name": "Eigene Inventarsektionen",
+    "swade-sundries.settings.invsec.enabled.hint": "Erlaubt das Festlegen eigener Inventarsektionen für Spielerbögen an Gegenständen.",
+    "swade-sundries.settings.invsec.enabledclient.name": "Eigene Inventarsektionen (Client)",
+    "swade-sundries.settings.invsec.enabledclient.hint": "Aktiviert das Anzeigen eigener Inventarsektionen auf diesem Client.",
+    "swade-sundries.inventory.sort.tooltip": "Inventar alphabetisch sortieren",
+    "swade-sundries.inventory.filter.placeholder": "Suche",
+    "swade-sundries.inventory.filter.tooltip": "Text zum Suchen eingeben, ESC zum leeren",
+    "swade-sundries.inventory.section.label": "Sektion",
+    "swade-sundries.inventory.section.placeholder": "Inventarsektion",
+    "swade-sundries.inventory.section.tooltip": "Eigene Sektion zur Anzeige im Inventar festlegen"
 }

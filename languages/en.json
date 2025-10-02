@@ -13,7 +13,7 @@
     "swade-sundries.settings.invsec.enabledclient.hint": "If enabled, items can be assigned custom inventory sections on this client.",
     "swade-sundries.inventory.sort.tooltip": "Sort inventory alphabetically",
     "swade-sundries.inventory.filter.placeholder": "Search",
-    "swade-sundries.inventory.filter.tooltip": "Input text to filter items",
+    "swade-sundries.inventory.filter.tooltip": "Input text to filter items, ESC to clear",
     "swade-sundries.inventory.section.label": "Section",
     "swade-sundries.inventory.section.placeholder": "Inventory section",
     "swade-sundries.inventory.section.tooltip": "Custom section in the inventory"
