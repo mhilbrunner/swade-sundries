@@ -28,6 +28,34 @@ class SWADESundriesUtil {
         element.addEventListener('keydown', p);
         element.addEventListener('keyup', p);
     }
+
+    static localizeSlug(s) {
+        if (!s) return s;
+        return game.swade.util.slugify(game.i18n.localize(s));
+    }
+
+    static isAttr(s, attr) {
+        if (!s?.length) return false;
+        if (!attr?.length) return false;
+        s = s.trim().toLowerCase();
+        attr = attr.trim().toLowerCase();
+        if (attr === 'agility') {
+            return s === attr || s === SWADESundriesUtil.localizeSlug('SWADE.AttrAgi');
+        }
+        if (attr === 'smarts') {
+            return s === attr || s === SWADESundriesUtil.localizeSlug('SWADE.AttrSma');
+        }
+        if (attr === 'spirit') {
+            return s === attr || s === SWADESundriesUtil.localizeSlug('SWADE.AttrSpr');
+        }
+        if (attr === 'strength') {
+            return s === attr || s === SWADESundriesUtil.localizeSlug('SWADE.AttrStr');
+        }
+        if (attr === 'vigor') {
+            return s === attr || s === SWADESundriesUtil.localizeSlug('SWADE.AttrVig');
+        }
+        return false;
+    }
 }
 
 class SWADESundriesReminders {
@@ -249,15 +277,17 @@ class SWADESundriesReminders {
         // Attributes
         if (reminder.key === 'attribute' && rollInfo.type === 'attribute') return true;
         if (reminder.key === 'attributep' && rollInfo.type === 'attribute' &&
-            (nameSWID === 'agility' || nameSWID === 'strength' || nameSWID === 'vigor')) return true;
+            (SWADESundriesUtil.isAttr(nameSWID, 'agility') ||
+             SWADESundriesUtil.isAttr(nameSWID, 'strength') ||
+             SWADESundriesUtil.isAttr(nameSWID, 'vigor'))) return true;
         if (reminder.key === 'attributem' && rollInfo.type === 'attribute' &&
-            (nameSWID === 'smarts' || nameSWID === 'spirit')) return true;
-        if (reminder.key === 'agi' && rollInfo.type === 'attribute' && nameSWID === 'agility') return true;
-        if (reminder.key === 'sma' && rollInfo.type === 'attribute' && nameSWID === 'smarts') return true;
-        if (reminder.key === 'spr' && rollInfo.type === 'attribute' && nameSWID === 'spirit') return true;
-        if (reminder.key === 'spi' && rollInfo.type === 'attribute' && nameSWID === 'spirit') return true;
-        if (reminder.key === 'str' && rollInfo.type === 'attribute' && nameSWID === 'strength') return true;
-        if (reminder.key === 'vig' && rollInfo.type === 'attribute' && nameSWID === 'vigor') return true;
+            (SWADESundriesUtil.isAttr(nameSWID, 'smarts') || SWADESundriesUtil.isAttr(nameSWID, 'spirit'))) return true;
+        if (reminder.key === 'agi' && rollInfo.type === 'attribute' && SWADESundriesUtil.isAttr(nameSWID, 'agility')) return true;
+        if (reminder.key === 'sma' && rollInfo.type === 'attribute' && SWADESundriesUtil.isAttr(nameSWID, 'smarts')) return true;
+        if (reminder.key === 'spr' && rollInfo.type === 'attribute' && SWADESundriesUtil.isAttr(nameSWID, 'spirit')) return true;
+        if (reminder.key === 'spi' && rollInfo.type === 'attribute' && SWADESundriesUtil.isAttr(nameSWID, 'spirit')) return true;
+        if (reminder.key === 'str' && rollInfo.type === 'attribute' && SWADESundriesUtil.isAttr(nameSWID, 'strength')) return true;
+        if (reminder.key === 'vig' && rollInfo.type === 'attribute' && SWADESundriesUtil.isAttr(nameSWID, 'vigor')) return true;
 
         // Skills
         if (reminder.key === 'skillall' && rollInfo.type === 'skill') return true;
