@@ -6,28 +6,33 @@
 # SWADE Sundries
 
 Small box of FoundryVTT [SWADE](https://foundryvtt.com/packages/swade/) system bits and bobs.
-Each feature can be disabled as needed.
+Each feature can be disabled as needed in the module settings.
 
 ## Gear tab inventory improvements
 
 ### Custom item sections
 
+![Custom item sections example screenshot](.github/asset/custom-sections.webp)
+
 Items can be assigned a custom section. If set on an item, it gets displayed under that section in the gear tab.
 Inspired by the 5E [Custom Character Sheet Sections](https://foundryvtt.com/packages/custom-character-sheet-sections) module.
 
-### Inventory sort
+Currently, this can only create new sections, not move items into different existing sections predefined by the system.
 
-Adds a button to the top of the gear tab to sort the inventory alphabetically.
+### Inventory search and sort
 
-### Inventory search
+![Item search filtering and sorting example screenshot](.github/asset/search-sort.webp)
 
-Adds a search filter field to the top of the gear tab.
+Adds a search filter field to the top of the gear tab.  
+Also adds a button to the top of the gear tab to sort the inventory alphabetically.
 
 ### Hide items
 
 A list of items to hide can be set in module settings. Items with matching SWIDs will be hidden from the inventory tab for players.
 
 ## Roll Reminders
+
+![Roll reminders sexample screenshot](.github/asset/roll-reminders.webp)
 
 Reminders allow Active Effects to add custom text to the roll dialog depending on roll type,
 heavily inspired by nifty modules like [Advantage Reminder](https://foundryvtt.com/packages/adv-reminder).
