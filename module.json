@@ -19,6 +19,14 @@
         "type": "system",
         "compatibility": {}
       }
+    ],
+    "recommends": [
+      {
+        "id": "socketlib",
+        "type": "module",
+        "manifest": "https://github.com/farling42/foundryvtt-socketlib/releases/latest/download/module.json",
+        "reason": "Improves the module API with socket support for Scrollable Text. Only required if you use that API in modules or macros."
+      }
     ]
   },
   "esmodules": [
@@ -39,6 +47,7 @@
       "path": "languages/de.json"
     }
   ],
+  "socket": true,
   "url": "#{URL}#",
   "version": "#{VERSION}#",
   "manifest": "#{MANIFEST}#",

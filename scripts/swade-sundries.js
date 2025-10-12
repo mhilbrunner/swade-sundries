@@ -831,7 +831,17 @@ class SWADESundriesSCT {
     async create(actorOrToken, text, options = {}) {
         if (!actorOrToken || !text?.length) return;
         let tokens = [];
-        if (actorOrToken.isToken) {
+        if (actorOrToken instanceof String || typeof actorOrToken === 'string') {
+            if (actorOrToken.includes('Actor.')) {
+                const actor = await foundry.utils.fromUuid(actorOrToken);
+                if (!actor) return;
+                tokens = actor.getActiveTokens(true, true);
+            } else {
+                const t = await foundry.utils.fromUuid(actorOrToken);
+                if (!t) return;
+                tokens = [t];
+            }
+        } else if (actorOrToken.isToken) {
             tokens = [actorOrToken.token];
         } else if (actorOrToken instanceof TokenDocument) {
             tokens = [actorOrToken];
@@ -961,6 +971,11 @@ class SWADESundriesSCT {
             type: Boolean,
         });
 
+        SWADESundries.api.socket?.register(`sct.create`, SWADESundries.api.sct.create);
+        SWADESundries.api.socket?.register(`sct.createPosOrNeg`, SWADESundries.api.sct.createPosOrNeg);
+        SWADESundries.api.socket?.register(`sct.createPos`, SWADESundries.api.sct.createPos);
+        SWADESundries.api.socket?.register(`sct.createNeg`, SWADESundries.api.sct.createNeg);
+
         Hooks.on(`updateActor`, SWADESundries.api.sct.onUpdateActor);
     }
 }
@@ -970,6 +985,7 @@ class SWADESundries {
     static MOD_KEY_REMINDER_PREFIX = `flags.${SWADESundries.MOD_ID}.r.`;
 
     constructor() {
+        this.util = SWADESundriesUtil;
         this.reminders = new SWADESundriesReminders();
         this.inventory = new SWADESundriesInventory();
         this.sct = new SWADESundriesSCT();
@@ -988,6 +1004,18 @@ class SWADESundries {
     }
 
     register() {
+        game.settings.register(SWADESundries.MOD_ID, 'socket.enabled', {
+            name: `${SWADESundries.MOD_ID}.settings.socket.enabled.name`,
+            hint: `${SWADESundries.MOD_ID}.settings.socket.enabled.hint`,
+            config: !!socketlib,
+            default: false,
+            requiresReload: true,
+            scope: 'world',
+            type: Boolean,
+        });
+        if (socketlib && SWADESundries.getSetting('socket.enabled')) {
+            SWADESundries.api.socket = socketlib.registerModule(SWADESundries.MOD_ID);
+        }
         SWADESundries.api.reminders?.register();
         SWADESundries.api.inventory?.register();
         SWADESundries.api.sct?.register();

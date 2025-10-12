@@ -25,6 +25,8 @@
     "swade-sundries.settings.sct.showfat.hint": "Shows scrolling text on Fatigue changes.",
     "swade-sundries.settings.sct.showconv.name": "Scrolling Text: Conviction",
     "swade-sundries.settings.sct.showconv.hint": "Shows scrolling text when (de)activating conviction.",
+    "swade-sundries.settings.socket.enabled.name": "Socket support",
+    "swade-sundries.settings.socket.enabled.hint": "Enable socket support (via socketlib). Only needs to be enabled if some parts of the module API are used in macros or modules. If in doubt, leave disabled.",
     "swade-sundries.inventory.sort.tooltip": "Sort inventory alphabetically",
     "swade-sundries.inventory.filter.placeholder": "Search",
     "swade-sundries.inventory.section.label": "Section",

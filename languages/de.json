@@ -25,6 +25,8 @@
     "swade-sundries.settings.sct.showfat.hint": "Rollender Statustext bei Veränderung an Erschöpfung.",
     "swade-sundries.settings.sct.showconv.name": "Roll. Text: Entschlossenheit",
     "swade-sundries.settings.sct.showconv.hint": "Rollender Statustext bei (De-)Aktivierung von Entschlossenheit.",
+    "swade-sundries.settings.socket.enabled.name": "Socket-Unterstützung",
+    "swade-sundries.settings.socket.enabled.hint": "Aktiviert Sockets (via socketlib). Nur benötigt, wenn bestimmte Teile der Modul-API in Makros oder Modulen genutzt werden. Im Zweifel deaktiviert lassen.",
     "swade-sundries.inventory.sort.tooltip": "Inventar alphabetisch sortieren",
     "swade-sundries.inventory.filter.placeholder": "Suche",
     "swade-sundries.inventory.section.label": "Sektion",
