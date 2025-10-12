@@ -30,6 +30,10 @@ Also adds a button to the top of the gear tab to sort the inventory alphabetical
 
 A list of items to hide can be set in module settings. Items with matching SWIDs will be hidden from the inventory tab for players.
 
+## Scrolling Status Text
+
+Adds Scrolling Status Text support for changes to Wounds, Fatigue and Conviction for either player-owned tokens, NPCs or both.
+
 ## Roll Reminders
 
 ![Roll reminders sexample screenshot](.github/asset/roll-reminders.webp)

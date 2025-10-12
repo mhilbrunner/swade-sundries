@@ -791,6 +791,180 @@ class SWADESundriesInventory {
     }
 }
 
+class SWADESundriesSCT {
+    defaultOptions = {
+        anchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
+        direction: CONST.TEXT_ANCHOR_POINTS.TOP,
+        fontSize: 28,
+        fill: 0xFFFFFF,
+        stroke: 0x000000,
+        strokeThickness: 4,
+        jitter: 0.33,
+        sundriesSigned: false,
+        sundriesTimes: 1,
+        sundriesDistanceRel: 0.75,
+        sundriesDelayMS: 800,
+    };
+    defaultColors = {
+        positive: 0x00FF00,
+        negative: 0xFF0000,
+    };
+
+    shouldShowSCT(actorOrToken) {
+        if (!actorOrToken) return false;
+        const actor = actorOrToken?.isToken ? actorOrToken.actor : actorOrToken;
+        if (!actor) return false;
+        if (actor.hasPlayerOwner && !SWADESundries.getSetting('sct.players')) return false;
+        if (!actor.hasPlayerOwner && !SWADESundries.getSetting('sct.npcs')) return false;
+
+        if (actorOrToken instanceof TokenDocument) {
+            const token = actorOrToken;
+            if (!token.object?.visible) return false;
+            if (token.isSecret) return false;
+            if (!token.rendered) return false;
+            if (!token.parent?.isView) return false;
+        }
+
+        return true;
+    }
+
+    async create(actorOrToken, text, options = {}) {
+        if (!actorOrToken || !text?.length) return;
+        let tokens = [];
+        if (actorOrToken.isToken) {
+            tokens = [actorOrToken.token];
+        } else if (actorOrToken instanceof TokenDocument) {
+            tokens = [actorOrToken];
+        } else {
+            tokens = actorOrToken.getActiveTokens(true, true);
+        }
+        if (!tokens?.length) return;
+
+        for (const token of tokens) {
+            if (!SWADESundries.api.sct.shouldShowSCT(token)) return;
+            const t = token.object;
+
+            let o = foundry.utils.mergeObject(SWADESundries.api.sct.defaultOptions, options, { 'inplace': false });
+            if (!o.distance && o.sundriesDistanceRel) {
+                o.distance = (o.sundriesDistanceRel * t.h);
+            }
+
+            for (let count = 0; count < o.sundriesTimes; count++) {
+                const delay = o.sundriesDelayMS === 0 ? 0 : (count) * Math.abs(o.sundriesDelayMS) + 1;
+                setTimeout(() => {
+                    canvas.interface.createScrollingText(t.center, text, o);
+                }, delay);
+            }
+        }
+    }
+
+    async createPosOrNeg(actorOrToken, text, value, options = {}) {
+        if (!actorOrToken || !text?.length) return;
+        const o = foundry.utils.mergeObject({
+            sundriesSigned: true,
+            sundriesInvertColor: false,
+        }, options, { 'inplace': false });
+        let isNegative = !value || value <= 0;
+        if (o.sundriesSigned) {
+            if (!text?.trim()?.startsWith('+') && !text?.trim()?.startsWith('-')) text = isNegative ? `-${text}` : `+${text}`;
+        }
+        if (o.sundriesInvertColor) isNegative = !isNegative;
+        if (isNegative) {
+            return SWADESundries.api.sct.createNeg(actorOrToken, text, o);
+        }
+        return SWADESundries.api.sct.createPos(actorOrToken, text, o);
+    }
+
+    async createPos(actorOrToken, text, options = {}) {
+        const o = foundry.utils.mergeObject({
+            fill: SWADESundries.api.sct.defaultColors.positive,
+        }, options, {'inplace': false});
+        return SWADESundries.api.sct.create(actorOrToken, text, o);
+    }
+
+    async createNeg(actorOrToken, text, options = {}) {
+        const o = foundry.utils.mergeObject({
+            fill: SWADESundries.api.sct.defaultColors.negative,
+        }, options, { 'inplace': false });
+        return SWADESundries.api.sct.create(actorOrToken, text, o);
+    }
+
+    onUpdateActor(actor, changed, options, user) {
+        if (!actor || !changed || options?.action !== 'update' || !options?.diff) return;
+        if (!SWADESundries.api.sct.shouldShowSCT(actor)) return;
+
+        const flatChanges = foundry.utils.flattenObject(changed);
+        for (const [key, value] of Object.entries(flatChanges)) {
+            if (key === 'system.details.conviction.active') {
+                if (!SWADESundries.getSetting('sct.showconv')) continue;
+                const conv = game.i18n.localize('SWADE.Conv');
+                SWADESundries.api.sct.createPosOrNeg(actor, `(${conv})`, value);
+            } else if (key === 'system.wounds.value') {
+                if (!SWADESundries.getSetting('sct.showwounds')) continue;
+                const diff = value - options?.swade?.wounds?.value;
+                if (diff === 0) continue;
+                const wound = game.i18n.localize('SWADE.Wound');
+                SWADESundries.api.sct.createPosOrNeg(actor, wound, diff, {sundriesInvertColor: true, sundriesTimes: Math.abs(diff)});
+            } else if (key === 'system.fatigue.value') {
+                if (!SWADESundries.getSetting('sct.showfat')) continue;
+                const diff = value - options?.swade?.fatigue?.value;
+                if (diff === 0) continue;
+                const fat = game.i18n.localize('SWADE.Fatigue');
+                SWADESundries.api.sct.createPosOrNeg(actor, fat, diff, {sundriesInvertColor: true, sundriesTimes: Math.abs(diff)});
+            }
+        }
+    }
+
+    register() {
+        game.settings.register(SWADESundries.MOD_ID, 'sct.players', {
+            name: `${SWADESundries.MOD_ID}.settings.sct.players.name`,
+            hint: `${SWADESundries.MOD_ID}.settings.sct.players.hint`,
+            config: true,
+            default: false,
+            scope: 'world',
+            type: Boolean,
+        });
+
+        game.settings.register(SWADESundries.MOD_ID, 'sct.npcs', {
+            name: `${SWADESundries.MOD_ID}.settings.sct.npcs.name`,
+            hint: `${SWADESundries.MOD_ID}.settings.sct.npcs.hint`,
+            config: true,
+            default: false,
+            scope: 'world',
+            type: Boolean,
+        });
+
+        game.settings.register(SWADESundries.MOD_ID, 'sct.showwounds', {
+            name: `${SWADESundries.MOD_ID}.settings.sct.showwounds.name`,
+            hint: `${SWADESundries.MOD_ID}.settings.sct.showwounds.hint`,
+            config: true,
+            default: true,
+            scope: 'world',
+            type: Boolean,
+        });
+
+        game.settings.register(SWADESundries.MOD_ID, 'sct.showfat', {
+            name: `${SWADESundries.MOD_ID}.settings.sct.showfat.name`,
+            hint: `${SWADESundries.MOD_ID}.settings.sct.showfat.hint`,
+            config: true,
+            default: true,
+            scope: 'world',
+            type: Boolean,
+        });
+
+        game.settings.register(SWADESundries.MOD_ID, 'sct.showconv', {
+            name: `${SWADESundries.MOD_ID}.settings.sct.showconv.name`,
+            hint: `${SWADESundries.MOD_ID}.settings.sct.showconv.hint`,
+            config: true,
+            default: true,
+            scope: 'world',
+            type: Boolean,
+        });
+
+        Hooks.on(`updateActor`, SWADESundries.api.sct.onUpdateActor);
+    }
+}
+
 class SWADESundries {
     static MOD_ID = 'swade-sundries';
     static MOD_KEY_REMINDER_PREFIX = `flags.${SWADESundries.MOD_ID}.r.`;
@@ -798,6 +972,7 @@ class SWADESundries {
     constructor() {
         this.reminders = new SWADESundriesReminders();
         this.inventory = new SWADESundriesInventory();
+        this.sct = new SWADESundriesSCT();
     }
 
     static get api() {
@@ -815,6 +990,7 @@ class SWADESundries {
     register() {
         SWADESundries.api.reminders?.register();
         SWADESundries.api.inventory?.register();
+        SWADESundries.api.sct?.register();
     }
 }
 
