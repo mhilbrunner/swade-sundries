@@ -812,7 +812,7 @@ class SWADESundriesSCT {
 
     shouldShowSCT(actorOrToken) {
         if (!actorOrToken) return false;
-        const actor = actorOrToken?.isToken ? actorOrToken.actor : actorOrToken;
+        const actor = actorOrToken?.isToken && actorOrToken.actor ? actorOrToken.actor : actorOrToken;
         if (!actor) return false;
         if (actor.hasPlayerOwner && !SWADESundries.getSetting('sct.players')) return false;
         if (!actor.hasPlayerOwner && !SWADESundries.getSetting('sct.npcs')) return false;
