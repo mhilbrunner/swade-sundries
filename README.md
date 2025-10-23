@@ -34,6 +34,10 @@ A list of items to hide can be set in module settings. Items with matching SWIDs
 
 Adds Scrolling Status Text support for changes to Wounds, Fatigue and Conviction for either player-owned tokens, NPCs or both.
 
+## Link compendium source items
+
+Adds links to an item's original compendium source item in the item sheet's header buttons and/or in the context menu of the item's chat cards for GMs and/or players.
+
 ## Roll Reminders
 
 ![Roll reminders sexample screenshot](.github/asset/roll-reminders.webp)
