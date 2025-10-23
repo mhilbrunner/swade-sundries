@@ -980,6 +980,110 @@ class SWADESundriesSCT {
     }
 }
 
+class SWADESundriesSourceLink {
+    getDocIfCanView(uuid) {
+        if (!uuid || !uuid?.length) return undefined;
+
+        if (!SWADESundries.getSetting('slink.itemsheet.user') && !game.user.isGM) return undefined;
+        if (!SWADESundries.getSetting('slink.itemsheet.gm') && game.user.isGM) return undefined;
+
+        const doc = fromUuidSync(uuid);
+        if (!doc) return undefined;
+
+        if (!game.user.isGM && doc.pack?.length) {
+            if (!game.packs.get(doc.pack)?.testUserPermission(game.user, CONST.DOCUMENT_OWNERSHIP_LEVELS.OBSERVER, false)) {
+                return undefined;
+            }
+        }
+
+        return doc;
+    }
+
+    async openSheet(uuid) {
+        const doc = await fromUuid(uuid);
+        if (!doc) return;
+        doc.sheet?.render(true);
+    }
+
+    onGetSwadeItemSheetV2HeaderButtons(app, buttons) {
+        const source = app?.object?._stats?.compendiumSource;
+        const doc = SWADESundries.api.sourcelink.getDocIfCanView(source);
+        if (!doc) return;
+
+        buttons?.unshift({
+            label: '',
+            class: 'swade-sundries-source',
+            icon: 'fa-solid fa-book-copy',
+            onclick: () => { return SWADESundries.api.sourcelink.openSheet(source) },
+        });
+    }
+
+    getItemSourceUuidForChatMessage(li) {
+        const message = game.messages.get(li?.dataset?.messageId);
+        if (!message) return undefined;
+        if (message.type !== 'itemCard') return undefined;
+        if (!message.isOwner && !game.user.isGM) return undefined;
+
+        return message?.system?._item?._stats?.compendiumSource;
+    }
+
+    onChatMessageCheckCondition(li) {
+        const source = SWADESundries.api.sourcelink.getItemSourceUuidForChatMessage(li);
+        const doc = SWADESundries.api.sourcelink.getDocIfCanView(source);
+        if (!doc) return false;
+        return true;
+    }
+
+    onChatMessageCallback(li) {
+        const source = SWADESundries.api.sourcelink.getItemSourceUuidForChatMessage(li);
+        const doc = SWADESundries.api.sourcelink.getDocIfCanView(source);
+        if (!doc) return;
+        return SWADESundries.api.sourcelink.openSheet(source);
+    }
+
+    onGetChatMessageContextOptions(app, items) {
+        if (!SWADESundries.getSetting('slink.chatctx')) return;
+        items?.unshift({
+            name: 'swade-sundries.chat.context.item.opensource',
+            icon: '<i class="fa-solid fa-book-copy"></i>',
+            condition: (li) => { return SWADESundries.api.sourcelink.onChatMessageCheckCondition(li) },
+            callback: (li) => { return SWADESundries.api.sourcelink.onChatMessageCallback(li) },
+        });
+    }
+
+    register() {
+        game.settings.register(SWADESundries.MOD_ID, 'slink.itemsheet.gm', {
+            name: `${SWADESundries.MOD_ID}.slink.itemsheet.gm.name`,
+            hint: `${SWADESundries.MOD_ID}.slink.itemsheet.gm.hint`,
+            config: true,
+            default: false,
+            scope: 'world',
+            type: Boolean,
+        });
+
+        game.settings.register(SWADESundries.MOD_ID, 'slink.itemsheet.user', {
+            name: `${SWADESundries.MOD_ID}.slink.itemsheet.user.name`,
+            hint: `${SWADESundries.MOD_ID}.slink.itemsheet.user.hint`,
+            config: true,
+            default: false,
+            scope: 'world',
+            type: Boolean,
+        });
+
+        game.settings.register(SWADESundries.MOD_ID, 'slink.chatctx', {
+            name: `${SWADESundries.MOD_ID}.slink.chatctx.name`,
+            hint: `${SWADESundries.MOD_ID}.slink.chatctx.hint`,
+            config: true,
+            default: false,
+            scope: 'world',
+            type: Boolean,
+        });
+
+        Hooks.on(`getSwadeItemSheetV2HeaderButtons`, SWADESundries.api.sourcelink.onGetSwadeItemSheetV2HeaderButtons)
+        Hooks.on(`getChatMessageContextOptions`, SWADESundries.api.sourcelink.onGetChatMessageContextOptions)
+    }
+}
+
 class SWADESundries {
     static MOD_ID = 'swade-sundries';
     static MOD_KEY_REMINDER_PREFIX = `flags.${SWADESundries.MOD_ID}.r.`;
@@ -989,6 +1093,7 @@ class SWADESundries {
         this.reminders = new SWADESundriesReminders();
         this.inventory = new SWADESundriesInventory();
         this.sct = new SWADESundriesSCT();
+        this.sourcelink = new SWADESundriesSourceLink();
     }
 
     static get api() {
@@ -1019,6 +1124,7 @@ class SWADESundries {
         SWADESundries.api.reminders?.register();
         SWADESundries.api.inventory?.register();
         SWADESundries.api.sct?.register();
+        SWADESundries.api.sourcelink?.register();
     }
 }
 

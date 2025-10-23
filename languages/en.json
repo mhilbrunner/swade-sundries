@@ -27,9 +27,16 @@
     "swade-sundries.settings.sct.showconv.hint": "Shows scrolling text when (de)activating conviction.",
     "swade-sundries.settings.socket.enabled.name": "Socket support",
     "swade-sundries.settings.socket.enabled.hint": "Enable socket support (via socketlib). Only needs to be enabled if some parts of the module API are used in macros or modules. If in doubt, leave disabled.",
+    "swade-sundries.slink.itemsheet.gm.name": "Link source item on item sheet (GM)",
+    "swade-sundries.slink.itemsheet.gm.hint": "If an item has a compendium source item, add a header button to open it for the GM.",
+    "swade-sundries.slink.itemsheet.user.name": "Link source item on item sheet (Users)",
+    "swade-sundries.slink.itemsheet.user.hint": "If an item has a compendium source item, add a header button to open it for users with at least observer permissions on the compendium.",
+    "swade-sundries.slink.chatctx.name": "Open Source Item via chat context menu",
+    "swade-sundries.slink.chatctx.hint": "If an item has a compendium source item, add a context menu item for the item's chat cards to open it, respecting the settings above.",
     "swade-sundries.inventory.sort.tooltip": "Sort inventory alphabetically",
     "swade-sundries.inventory.filter.placeholder": "Search",
     "swade-sundries.inventory.section.label": "Section",
     "swade-sundries.inventory.section.placeholder": "Inventory section",
-    "swade-sundries.inventory.section.tooltip": "Custom section in the inventory"
+    "swade-sundries.inventory.section.tooltip": "Custom section in the inventory",
+    "swade-sundries.chat.context.item.opensource": "Open source item"
 }

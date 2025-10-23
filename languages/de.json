@@ -27,9 +27,16 @@
     "swade-sundries.settings.sct.showconv.hint": "Rollender Statustext bei (De-)Aktivierung von Entschlossenheit.",
     "swade-sundries.settings.socket.enabled.name": "Socket-Unterstützung",
     "swade-sundries.settings.socket.enabled.hint": "Aktiviert Sockets (via socketlib). Nur benötigt, wenn bestimmte Teile der Modul-API in Makros oder Modulen genutzt werden. Im Zweifel deaktiviert lassen.",
+    "swade-sundries.slink.itemsheet.gm.name": "Quellitem auf Itembogen verlinken (GM)",
+    "swade-sundries.slink.itemsheet.gm.hint": "Fügt für GMs dem Itembogen einen Header-Button hinzu, der auf das Quellitem im Kompendium verlinkt (falls vorhanden).",
+    "swade-sundries.slink.itemsheet.user.name": "Quellitem auf Itembogen verlinken (Spieler)",
+    "swade-sundries.slink.itemsheet.user.hint": "Fügt für Spieler dem Itembogen einen Header-Button hinzu, der auf das Quellitem im Kompendium verlinkt (falls vorhanden).",
+    "swade-sundries.slink.chatctx.name": "Quellitem per Chat-Kontextmenü",
+    "swade-sundries.slink.chatctx.hint": "Fügt Item-Chatkarten eine Kontextmenü-Option hinzu, um das Quellitem im Kompendien zu öffnen (unter Berücksichtigung der obigen Einstellungen).",
     "swade-sundries.inventory.sort.tooltip": "Inventar alphabetisch sortieren",
     "swade-sundries.inventory.filter.placeholder": "Suche",
     "swade-sundries.inventory.section.label": "Sektion",
     "swade-sundries.inventory.section.placeholder": "Inventarsektion",
-    "swade-sundries.inventory.section.tooltip": "Eigene Sektion zur Anzeige im Inventar festlegen"
+    "swade-sundries.inventory.section.tooltip": "Eigene Sektion zur Anzeige im Inventar festlegen",
+    "swade-sundries.chat.context.item.opensource": "Quellitem öffnen"
 }
