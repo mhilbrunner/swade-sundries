@@ -1005,8 +1005,26 @@ class SWADESundriesSourceLink {
         doc.sheet?.render(true);
     }
 
+    getSource(item) {
+        if (item?._stats?.compendiumSource?.length) return item?._stats?.compendiumSource;
+        if (item?._stats?.duplicateSource?.length) return item?._stats?.duplicateSource;
+        if (item?.flags?.core?.sourceId?.length) return item?.flags?.core?.sourceId;
+
+        return undefined;
+    }
+
+    getItemSourceUuidForChatMessage(li) {
+        const message = game.messages.get(li?.dataset?.messageId);
+        if (!message) return undefined;
+        if (message.type !== 'itemCard') return undefined;
+        if (!message.isOwner && !game.user.isGM) return undefined;
+
+        return SWADESundries.api.sourcelink.getSource(message?.system?._item);
+    }
+
+
     onGetSwadeItemSheetV2HeaderButtons(app, buttons) {
-        const source = app?.object?._stats?.compendiumSource;
+        const source = SWADESundries.api.sourcelink.getSource(app?.object);
         const doc = SWADESundries.api.sourcelink.getDocIfCanView(source);
         if (!doc) return;
 
@@ -1017,16 +1035,6 @@ class SWADESundriesSourceLink {
             onclick: () => { return SWADESundries.api.sourcelink.openSheet(source) },
         });
     }
-
-    getItemSourceUuidForChatMessage(li) {
-        const message = game.messages.get(li?.dataset?.messageId);
-        if (!message) return undefined;
-        if (message.type !== 'itemCard') return undefined;
-        if (!message.isOwner && !game.user.isGM) return undefined;
-
-        return message?.system?._item?._stats?.compendiumSource;
-    }
-
     onChatMessageCheckCondition(li) {
         const source = SWADESundries.api.sourcelink.getItemSourceUuidForChatMessage(li);
         const doc = SWADESundries.api.sourcelink.getDocIfCanView(source);
