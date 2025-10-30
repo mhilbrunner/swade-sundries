@@ -1092,6 +1092,44 @@ class SWADESundriesSourceLink {
     }
 }
 
+class SWADESundriesRollConvert {
+    async onChatMessageCallback(li) {
+        if (!game.user.isGM) return false;
+        const message = game.messages.get(li?.dataset?.messageId);
+        if (!message) return false;
+        if (!message.isRoll || !message?.significantRoll || message?.significantRoll?.rollType === 'damage') return false;
+        let significantRoll = message.significantRoll?.toJSON();
+        if (!significantRoll) return false;
+
+        const confirm = await foundry.applications.api.DialogV2.confirm({
+            window: { title: 'swade-sundries.chat.context.roll.convertdamage.label'},
+            content: `<p>${game.i18n.localize('swade-sundries.chat.context.roll.convertdamage.confirm')}</p>`
+        });
+        if (!confirm) return;
+
+        significantRoll.class = 'DamageRoll';
+        return message.update({'rolls': [significantRoll]});
+    }
+
+    onGetChatMessageContextOptions(app, items) {
+        console.log('onGetChatMessageContextOptions', app, items);
+        items?.unshift({
+            name: 'swade-sundries.chat.context.roll.convertdamage.label',
+            icon: '<i class="fa-solid fa-heart-crack"></i>',
+            condition: (li) => {
+                const message = game.messages.get(li?.dataset?.messageId);
+                if (!game.user.isGM || !message?.isRoll || message?.significantRoll?.rollType === 'damage') return false;
+                return true;
+            },
+            callback: (li) => { return SWADESundries.api.rollconvert.onChatMessageCallback(li) },
+        });
+    }
+
+    register() {
+        Hooks.on(`getChatMessageContextOptions`, SWADESundries.api.rollconvert.onGetChatMessageContextOptions)
+    }
+}
+
 class SWADESundries {
     static MOD_ID = 'swade-sundries';
     static MOD_KEY_REMINDER_PREFIX = `flags.${SWADESundries.MOD_ID}.r.`;
@@ -1102,6 +1140,7 @@ class SWADESundries {
         this.inventory = new SWADESundriesInventory();
         this.sct = new SWADESundriesSCT();
         this.sourcelink = new SWADESundriesSourceLink();
+        this.rollconvert = new SWADESundriesRollConvert();
     }
 
     static get api() {
@@ -1133,6 +1172,7 @@ class SWADESundries {
         SWADESundries.api.inventory?.register();
         SWADESundries.api.sct?.register();
         SWADESundries.api.sourcelink?.register();
+        SWADESundries.api.rollconvert?.register();
     }
 }
 

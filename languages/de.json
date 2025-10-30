@@ -38,5 +38,7 @@
     "swade-sundries.inventory.section.label": "Sektion",
     "swade-sundries.inventory.section.placeholder": "Inventarsektion",
     "swade-sundries.inventory.section.tooltip": "Eigene Sektion zur Anzeige im Inventar festlegen",
-    "swade-sundries.chat.context.item.opensource": "Quellitem öffnen"
+    "swade-sundries.chat.context.item.opensource": "Quellitem öffnen",
+    "swade-sundries.chat.context.roll.convertdamage.label": "Zu Schadenswurf konvertieren",
+    "swade-sundries.chat.context.roll.convertdamage.confirm": "Sicher, dass dieser Wurf zu einem Schadenswurf konvertiert werden soll?"
 }

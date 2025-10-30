@@ -38,5 +38,7 @@
     "swade-sundries.inventory.section.label": "Section",
     "swade-sundries.inventory.section.placeholder": "Inventory section",
     "swade-sundries.inventory.section.tooltip": "Custom section in the inventory",
-    "swade-sundries.chat.context.item.opensource": "Open source item"
+    "swade-sundries.chat.context.item.opensource": "Open source item",
+    "swade-sundries.chat.context.roll.convertdamage.label": "Convert to damage roll",
+    "swade-sundries.chat.context.roll.convertdamage.confirm": "Are you sure you want to convert this roll to a damage roll?"
 }
