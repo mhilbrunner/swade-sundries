@@ -38,6 +38,11 @@ Adds Scrolling Status Text support for changes to Wounds, Fatigue and Conviction
 
 Adds links to an item's original compendium source item in the item sheet's header buttons and/or in the context menu of the item's chat cards for GMs and/or players.
 
+## Apply damage for free-form rolls
+
+A new chat context menu entry allows GMs to convert non-damage rolls to damage rolls. This can be useful to use the
+system's Damage Applicator for free-form rolls.
+
 ## Roll Reminders
 
 ![Roll reminders sexample screenshot](.github/asset/roll-reminders.webp)
