@@ -38,6 +38,9 @@
     "swade-sundries.inventory.section.label": "Section",
     "swade-sundries.inventory.section.placeholder": "Inventory section",
     "swade-sundries.inventory.section.tooltip": "Custom section in the inventory",
+    "swade-sundries.chat.itemlink.name": "Open Item via chat context menu",
+    "swade-sundries.chat.itemlink.hint": "Allow opening items via item chat card context menus (for owners and GMs).",
+    "swade-sundries.chat.context.item.open": "Open item",
     "swade-sundries.chat.context.item.opensource": "Open source item",
     "swade-sundries.chat.context.roll.convertdamage.label": "Convert to damage roll",
     "swade-sundries.chat.context.roll.convertdamage.confirm": "Are you sure you want to convert this roll to a damage roll?"
