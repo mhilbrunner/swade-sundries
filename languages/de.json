@@ -33,7 +33,7 @@
     "swade-sundries.slink.itemsheet.user.hint": "Fügt für Spieler dem Itembogen einen Header-Button hinzu, der auf das Quellitem im Kompendium verlinkt (falls vorhanden).",
     "swade-sundries.slink.chatctx.name": "Quellitem per Chat-Kontextmenü",
     "swade-sundries.slink.chatctx.hint": "Fügt Item-Chatkarten eine Kontextmenü-Option hinzu, um das Quellitem im Kompendien zu öffnen (unter Berücksichtigung der obigen Einstellungen).",
-    "swade-sundries.inventory.sort.tooltip": "Inventar alphabetisch sortieren",
+    "swade-sundries.inventory.sort.tooltip": "Inventar alphabetisch sortieren. Umschalttaste (Shift) gedrückt halten, um alle Items zu sortieren (Mächte etc.).",
     "swade-sundries.inventory.filter.placeholder": "Suche",
     "swade-sundries.inventory.section.label": "Sektion",
     "swade-sundries.inventory.section.placeholder": "Inventarsektion",

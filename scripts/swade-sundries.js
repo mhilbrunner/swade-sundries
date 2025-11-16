@@ -497,12 +497,15 @@ class SWADESundriesInventory {
         return updates;
     }
 
-    async sortInventory(actorId) {
+    async sortInventory(actorId, all = false) {
         if (!actorId?.length) return;
         const actor = game.actors.get(actorId);
         if (!actor || !actor.isOwner) return;
 
-        const TYPES_TO_SORT = ['weapon', 'armor', 'shield', 'gear', 'consumable'];
+        let TYPES_TO_SORT = ['weapon', 'armor', 'shield', 'gear', 'consumable'];
+        if (all) {
+            TYPES_TO_SORT.push('ability', 'action', 'ancestry', 'edge', 'hindrance', 'power', 'skill');
+        }
         const sections = {};
         let updates = [];
         for (let [itemType, items] of Object.entries(actor.itemTypes)) {
@@ -634,7 +637,7 @@ class SWADESundriesInventory {
             sort.dataset['tooltip'] = `${SWADESundries.MOD_ID}.inventory.sort.tooltip`;
             sort.disabled = !actor.isOwner;
             sort.addEventListener('click', (event) => {
-                SWADESundries.api.inventory.sortInventory(actor.id);
+                SWADESundries.api.inventory.sortInventory(actor.id, event?.shiftKey);
             });
             menu.appendChild(sort);
         }

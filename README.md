@@ -24,7 +24,7 @@ Currently, this can only create new sections, not move items into different exis
 ![Item search filtering and sorting example screenshot](.github/asset/search-sort.webp)
 
 Adds a search filter field to the top of the gear tab.  
-Also adds a button to the top of the gear tab to sort the inventory alphabetically.
+Also adds a button to the top of the gear tab to sort the inventory alphabetically (or all item types if holding Shift).
 
 ### Hide items
 
