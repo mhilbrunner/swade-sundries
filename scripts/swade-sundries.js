@@ -443,10 +443,17 @@ class SWADESundriesInventory {
         return item?.getFlag(SWADESundries.MOD_ID, SWADESundriesInventory.KEY_INVSEC)?.trim();
     }
 
-    formatForSection(itemElement) {
+    formatForSection(item, itemElement, opt = {hasCharges: false, hasNotes: false}) {
         if (!itemElement) return itemElement;
 
-        const toRemove = itemElement.querySelectorAll('.bonus, .damage, .ap, .min-str, .parry, .cover');
+        let toRemoveSel = '.bonus, .damage, .ap, .min-str, .parry, .cover';
+        if (!opt?.hasCharges) {
+            toRemoveSel += ', .charges';
+        }
+        if (!opt?.hasNotes) {
+            toRemoveSel += ', .note';
+        }
+        const toRemove = itemElement.querySelectorAll(toRemoveSel);
         toRemove?.forEach((e) => {
             if (e.matches('summary > span')) e.remove();
         });
@@ -456,20 +463,40 @@ class SWADESundriesInventory {
 
         const charges = itemElement.querySelector('.charges');
         const note = itemElement.querySelector('.note');
-        if (!charges) {
+
+        if (charges && opt?.hasCharges && !opt?.hasNotes) {
+            charges.style.gridColumn = `4`;
+        }
+
+        if (!charges && opt?.hasCharges) {
             const s = document.createElement('span');
             s.classList = `charges`;
-            if (note) {
+            if (note && opt?.hasNotes) {
                 note.insertAdjacentElement('beforebegin', s);
             } else {
                 weight.insertAdjacentElement('beforebegin', s);
             }
         }
 
-        if (!note) {
+        if (!note && opt?.hasNotes) {
             const s = document.createElement('span');
             s.classList = `note`;
             weight.insertAdjacentElement('beforebegin', s);
+        }
+
+        const name = itemElement.querySelector('.item-name');
+        if (name) {
+            name.title = ``;
+            name.dataset.tooltip = 'swade-sundries.inventory.itemname.tooltip';
+            if (item?.name?.length) {
+                name.dataset.tooltip = game.i18n.format('swade-sundries.inventory.itemname.tooltipf', {name: item.name});
+            }
+            let colspan = 1
+            if (!opt?.hasCharges) colspan += 1;
+            if (!opt?.hasNotes) colspan += 1;
+            if (colspan > 1) {
+                name.style.gridColumn = `2 / span ${colspan}`;
+            }
         }
 
         return itemElement;
@@ -699,12 +726,30 @@ class SWADESundriesInventory {
         if (!headerMisc) return;
         for (const section of SWADESundriesUtil.sortedKeys(sections)) {
             const items = sections[section];
+            let hasCharges = false;
+            let hasNotes = false;
+            for (const row of items) {
+                if (row?.item?.system?.notes?.length && row?.item.system?.notes?.trim()?.length) {
+                    hasNotes = true;
+                }
+                if (row?.item?.system?.charges?.max > 0) {
+                    hasCharges = true;
+                }
+                if (hasCharges && hasNotes) break;
+            }
+
+            let headerCharges = ``;
+            if (hasCharges) {
+                const style = !hasNotes ? `style="grid-column: 4"` : ``;
+                headerCharges = `<span class="charges" ${style}>${game.i18n.localize('SWADE.Charges')}</span>`;
+            }
+
             const header = document.createElement('header');
             header.className = `header ${SWADESundries.MOD_ID} section`;
             header.innerHTML = `
                 <span class="header-name">${foundry.utils.escapeHTML(section)}</span>
-                <span class="charges">${game.i18n.localize('SWADE.Charges')}</span>
-                <span class="note">${game.i18n.localize('SWADE.Notes')}</span>
+                ${headerCharges}
+                ${hasNotes ? `<span class="note">${game.i18n.localize('SWADE.Notes')}</span>` : ''}
                 <span class="weight">${game.i18n.localize('SWADE.Weight')}</span>
             `;
             const insertedHeader = headerMisc.insertAdjacentElement('beforebegin', header);
@@ -714,7 +759,7 @@ class SWADESundriesInventory {
             const insertedList = headerMisc.insertAdjacentElement('beforebegin', list);
             if (!insertedList) return;
             for (const row of items.sort((a, b) => a.item?.sort - b.item?.sort)) {
-                const e = SWADESundries.api.inventory.formatForSection(row.element);
+                const e = SWADESundries.api.inventory.formatForSection(row.item, row.element, {hasCharges, hasNotes});
                 if (!e) continue;
                 insertedList.appendChild(e);
             }

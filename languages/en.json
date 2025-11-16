@@ -33,6 +33,8 @@
     "swade-sundries.slink.itemsheet.user.hint": "If an item has a compendium source item, add a header button to open it for users with at least observer permissions on the compendium.",
     "swade-sundries.slink.chatctx.name": "Open Source Item via chat context menu",
     "swade-sundries.slink.chatctx.hint": "If an item has a compendium source item, add a context menu item for the item's chat cards to open it, respecting the settings above.",
+    "swade-sundries.inventory.itemname.tooltip": "Click to expand item.",
+    "swade-sundries.inventory.itemname.tooltipf": "Click to expand item <strong>{name}</strong>.",
     "swade-sundries.inventory.sort.tooltip": "Sort inventory alphabetically. Holding Shift sorts all items (powers etc.).",
     "swade-sundries.inventory.filter.placeholder": "Search",
     "swade-sundries.inventory.section.label": "Section",
