@@ -17,7 +17,10 @@
       {
         "id": "swade",
         "type": "system",
-        "compatibility": {}
+        "compatibility": {
+          "minimum": "5.2.0",
+          "verified": "5.2.0"
+        }
       }
     ],
     "recommends": [

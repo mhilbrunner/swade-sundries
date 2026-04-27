@@ -60,10 +60,38 @@ class SWADESundriesUtil {
     static async openSheet(uuid) {
         const doc = await fromUuid(uuid);
         if (!doc) {
-            console.log(SWADESundries.MOD_ID, `Doc missing, can't open sheet for ${uuid}`);
-            return;
-        };
+            return SWADESundriesUtil.error(`Doc missing, can't open sheet for ${uuid}`);
+        }
+        SWADESundriesUtil.debug(`Opening sheet for ${uuid}`);
         doc.sheet?.render(true);
+    }
+
+    static LOG_LEVELS = {
+        DEBUG: 0,
+        INFO: 1,
+        WARN: 2,
+        ERROR: 3,
+        QUIET: 4,
+    };
+    static LOG_LEVEL = SWADESundriesUtil.LOG_LEVELS.INFO;
+
+    static log(level, ...args) {
+        console.log(SWADESundries.MOD_ID, level, ...args);
+    }
+
+    static debug(...args) {
+        if (SWADESundriesUtil.LOG_LEVEL > SWADESundriesUtil.LOG_LEVELS.DEBUG) return;
+        SWADESundriesUtil.log('DEBUG', ...args);
+    }
+
+    static info(...args) {
+        if (SWADESundriesUtil.LOG_LEVEL > SWADESundriesUtil.LOG_LEVELS.INFO) return;
+        SWADESundriesUtil.log('INFO', ...args);
+    }
+
+    static error(...args) {
+        if (SWADESundriesUtil.LOG_LEVEL > SWADESundriesUtil.LOG_LEVELS.ERROR) return;
+        SWADESundriesUtil.log('ERROR', ...args);
     }
 }
 
@@ -225,7 +253,7 @@ class SWADESundriesReminders {
             ret.name = die.flavor;
         }
 
-        console.log(SWADESundries.MOD_ID, 'Unhandled trait roll for reminders:', roll.rollType);
+        SWADESundriesUtil.info('Unhandled trait roll for reminders:', roll.rollType);
         return ret;
     }
 
@@ -362,6 +390,7 @@ class SWADESundriesReminders {
 
     async handleRollReminders(app, html, context, options) {
         if (!game.settings.get(SWADESundries.MOD_ID, 'reminders.enabled')) return;
+        SWADESundriesUtil.debug('handleRollReminders', app, html, context, options);
 
         let item = app?.ctx?.item;
         let actor = app?.ctx?.actor;
@@ -574,16 +603,17 @@ class SWADESundriesInventory {
     }
 
     searchFilterCallback(event, app, html) {
-        if (!html) return;
-        const actor = app?.object;
-        if (!actor) return;
+        SWADESundriesUtil.debug('searchFilterCallback', event, app, html);
+        if (!html) return SWADESundriesUtil.error('searchFilterCallback', `No HTML`);
+        const actor = app?.document;
+        if (!actor) return SWADESundriesUtil.error('searchFilterCallback', `Actor document not found`);
 
         const query = event?.target?.value?.trim()?.toLowerCase();
         const filter = query?.length && query?.length > 0;
         const filterClass = `${SWADESundries.MOD_ID}-filtered`;
 
-        const inventory = html.querySelector('.sheet-body .tab.inventory .inventory');
-        if (!inventory) return;
+        const inventory = html.querySelector('.sheet-body.tab.inventory .inventory');
+        if (!inventory) return SWADESundriesUtil.error('searchFilterCallback', `Inventory not found`);
         if (filter) {
             inventory.classList.add(`${SWADESundries.MOD_ID}-filter-active`);
         } else {
@@ -615,21 +645,21 @@ class SWADESundriesInventory {
 
     addInventoryMenu(app, html) {
         if (!html) return;
-        const actor = app?.object;
-        if (!actor) return;
+        const actor = app?.document;
+        if (!actor) return SWADESundriesUtil.error('addInventoryMenu()', `No actor found`);;
 
         if (!SWADESundries.getSetting('invfilter.enabled') &&
             !SWADESundries.getSetting('invsort.enabled')) {
             return;
         }
 
-        const topRow = html.querySelector('.sheet-body .tab.inventory > section.flexrow');
-        if (!topRow) return;
+        const topRow = html.querySelector('.sheet-body.tab.inventory > section.flexrow');
+        if (!topRow) return SWADESundriesUtil.error('addInventoryMenu()', `Top row not found`);
         const buttons = document.createElement('div');
         buttons.className = `${SWADESundries.MOD_ID} inventory-menu`;
 
         const menu = topRow.insertAdjacentElement('beforeend', buttons);
-        if (!menu) return;
+        if (!menu) return SWADESundriesUtil.error('addInventoryMenu()', `Couldn't insert inventory menu`);
 
         if (SWADESundries.getSetting('invfilter.enabled')) {
             const searchFilter = foundry.applications.fields.createTextInput({
@@ -671,17 +701,19 @@ class SWADESundriesInventory {
     }
 
     renderCharacterSheet(app, html, context, options) {
+        SWADESundriesUtil.debug('renderCharacterSheet', app, html, context, options);
+
         html = html instanceof jQuery ? html[0] : html;
-        const actor = app?.object;
-        if (!actor) return;
+        const actor = app?.document;
+        if (!actor) return SWADESundriesUtil.error(`No actor found for renderCharacterSheet hook`);
 
         SWADESundries.api.inventory.addInventoryMenu(app, html);
         
-        const inventory = html?.querySelector('.sheet-body .tab.inventory .inventory');
-        if (!inventory) return;
+        const inventory = html?.querySelector('.sheet-body.tab.inventory .inventory');
+        if (!inventory) return SWADESundriesUtil.error(`No inventory found for renderCharacterSheet hook`);
 
         const items = inventory.querySelectorAll('& > ul > li');
-        if (!items?.length) return;
+        if (!items?.length) return SWADESundriesUtil.debug(`No items found in actor inventory for renderCharacterSheet hook`);
 
         let invhide = SWADESundries.getSetting('invhide.items')?.replace(';', ',')?.split(',');
         invhide = invhide && invhide.length ? invhide : [];
@@ -697,7 +729,7 @@ class SWADESundriesInventory {
             const id = itemEl?.dataset?.itemId;
             if (!id?.length) return;
             const item = actor.items?.get(id);
-            if (!item) return;
+            if (!item) return SWADESundriesUtil.error(`Trying to hide non-existant item in inventory: ${id}`);
 
             if (hide) {
                 invhide.forEach((h) => {
@@ -723,7 +755,7 @@ class SWADESundriesInventory {
         });
 
         const headerMisc = inventory.querySelector('.header.misc')
-        if (!headerMisc) return;
+        if (!headerMisc) return SWADESundriesUtil.debug(`'Misc' header element not found in inventory for renderCharacterSheet hook`);
         for (const section of SWADESundriesUtil.sortedKeys(sections)) {
             const items = sections[section];
             let hasCharges = false;
@@ -768,12 +800,14 @@ class SWADESundriesInventory {
 
     renderItemSheet(app, html, context, options) {
         if (!SWADESundries.api.inventory.sectionsEnabled()) return;
+        SWADESundriesUtil.debug('renderItemSheet', app, html, context, options);
 
         html = html instanceof jQuery ? html[0] : html;
-        const item = app?.object;
-        if (!item || !SWADESundriesInventory.INV_ITEM_TYPES.includes(item.type)) return;
+        const item = app?.document;
+        if (!item) return SWADESundriesUtil.error('renderItemSheet', `No item`);
+        if (!SWADESundriesInventory.INV_ITEM_TYPES.includes(item.type)) return;
         let target = html?.querySelector('.sheet-sidebar .additional-stats')?.previousElementSibling;
-        if (!target) return;
+        if (!target) return SWADESundriesUtil.error('renderItemSheet', `Additional stats selector not found`);
 
         const section = SWADESundries.api.inventory.getSection(item);
         const sectionInputName = `flags.${SWADESundries.MOD_ID}.${SWADESundriesInventory.KEY_INVSEC}`;
@@ -844,7 +878,7 @@ class SWADESundriesInventory {
         });
 
         Hooks.on(`renderCharacterSheet`, SWADESundries.api.inventory.renderCharacterSheet);
-        Hooks.on(`renderItemSheet`, SWADESundries.api.inventory.renderItemSheet);
+        Hooks.on(`renderSwadeItemSheetV2`, SWADESundries.api.inventory.renderItemSheet);
     }
 }
 
@@ -1075,15 +1109,16 @@ class SWADESundriesSourceLink {
 
 
     onGetSwadeItemSheetV2HeaderButtons(app, buttons) {
-        const source = SWADESundries.api.sourcelink.getSource(app?.object);
+        SWADESundriesUtil.debug('onGetSwadeItemSheetV2HeaderButtons', app, buttons);
+        const source = SWADESundries.api.sourcelink.getSource(app?.document);
         const doc = SWADESundries.api.sourcelink.getDocIfCanView(source);
         if (!doc) return;
 
         buttons?.unshift({
-            label: '',
+            label: 'swade-sundries.chat.context.item.opensource',
             class: 'swade-sundries-source',
             icon: 'fa-solid fa-book-copy',
-            onclick: () => { return SWADESundriesUtil.openSheet(source) },
+            onClick: () => { return SWADESundriesUtil.openSheet(source) },
         });
     }
 
@@ -1139,7 +1174,7 @@ class SWADESundriesSourceLink {
             type: Boolean,
         });
 
-        Hooks.on(`getSwadeItemSheetV2HeaderButtons`, SWADESundries.api.sourcelink.onGetSwadeItemSheetV2HeaderButtons)
+        Hooks.on(`getHeaderControlsSwadeItemSheetV2`, SWADESundries.api.sourcelink.onGetSwadeItemSheetV2HeaderButtons)
         Hooks.on(`getChatMessageContextOptions`, SWADESundries.api.sourcelink.onGetChatMessageContextOptions)
     }
 }
