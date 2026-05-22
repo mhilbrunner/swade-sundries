@@ -1,6 +1,8 @@
-![](https://img.shields.io/badge/Foundry-v14-informational)
-![Latest Release Download Count](https://img.shields.io/github/downloads/mhilbrunner/swade-sundries/latest/module.zip)
+![Compatible Foundry Version](https://img.shields.io/badge/Foundry-v14-informational)
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/mhilbrunner/swade-sundries?label=Latest+Release)
 ![Forge Installs](https://img.shields.io/badge/dynamic/json?label=Forge%20Installs&query=package.installs&suffix=%25&url=https%3A%2F%2Fforge-vtt.com%2Fapi%2Fbazaar%2Fpackage%2Fswade-sundries&colorB=4aa94a)
+![GitHub Downloads All Releases](https://img.shields.io/github/downloads/mhilbrunner/swade-sundries/total?label=Downloads+(Total))
+![GitHub Downloads Release](https://img.shields.io/github/downloads/mhilbrunner/swade-sundries/latest/total?label=Downloads+(Latest))
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
 # SWADE Sundries
