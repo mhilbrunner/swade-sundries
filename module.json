@@ -4,7 +4,7 @@
   "description": "Little bits and bobs for SWADE.",
   "compatibility": {
     "minimum": 13,
-    "verified": 13
+    "verified": 14
   },
   "authors": [
     {
@@ -19,7 +19,7 @@
         "type": "system",
         "compatibility": {
           "minimum": "5.2.0",
-          "verified": "5.2.0"
+          "verified": "6.0.2"
         }
       }
     ],
